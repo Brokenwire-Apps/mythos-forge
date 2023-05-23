@@ -1,7 +1,7 @@
 import { RoundButton, WideButton } from "components/Forms/Button";
 import { MouseEventHandler, useEffect, useMemo } from "react";
 import { noOp } from "utils";
-import { MatIcon } from "../Common/Containers";
+import { MatIcon } from "components/Common/MatIcon";
 import useEscapeKeyListener from "hooks/GlobalEscapeKeyEvent";
 import {
   ModalContainer,
@@ -62,7 +62,12 @@ const Modal = (p: ModalProps) => {
   return (
     <ModalContainer className={rootClass} onClick={onBGClick}>
       <ModalTitle>
-        {title && <h1 className="title h4">{title}</h1>}
+        {title && (
+          <h1
+            className="title h4"
+            dangerouslySetInnerHTML={{ __html: title }}
+          />
+        )}
         <RoundButton variant="transparent" onClick={onClose}>
           <MatIcon icon="close" />
         </RoundButton>

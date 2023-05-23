@@ -1,7 +1,20 @@
+import { Container } from "@pixi/react";
+import { ComponentPropsWithRef } from "react";
+
 export type ContentStatus = "live" | "draft" | "hidden";
 export type ReporterType = "experiencer" | "observer" | "researcher";
 export type UserRole = "Admin" | "Moderator" | "Author" | "Reader";
-export type NullableString = string | null;
+export type NullableString = Nullable<string>;
+
+/** File Upload category */
+export type FileUploadCategory =
+  | "users"
+  | "characters"
+  | "books"
+  | "worlds"
+  | "chapters"
+  | "explorations"
+  | "scenes";
 
 /** Saved data from server. Use when an id is expected on an object */
 export type APIData<T> = T & {
@@ -107,31 +120,39 @@ export enum Richness {
 
 /** Used to describe a type of location */
 export enum LocationType {
-  Building = "Building",
-  City = "City",
   Continent = "Continent",
-  Country = "Country",
-  Other = "Other",
   Region = "Region",
-  Ruins = "Ruins",
-  Settlement = "Settlement",
+  Country = "Country",
+  City = "City",
   Town = "Town",
-  Village = "Village"
+  Village = "Village",
+  Settlement = "Settlement",
+  Ruins = "Ruins",
+  Building = "Building",
+  Other = "Other"
 }
+
+/** List of Location types */
+export const locationTypes = Object.values(LocationType);
 
 /** The type of World (super-set of locations)  */
 export enum WorldType {
+  /** A non-dimensional space where causal events still occur */
+  Realm = "Realm",
   /** A dimensional causal space (e.g. with planets, stars, etc) */
   Universe = "Universe",
   /** A Galaxy */
   Galaxy = "Galaxy",
+  /** A star or star system */
+  Star = "Star",
   /** A planet-mass body with many sub-locations */
   Planet = "Planet",
-  /** A non-dimensional space where causal events still occur */
-  Realm = "Realm",
   /** Something other than dimensional and non-dimensional (e.g. star's orbit) */
   Other = "Other"
 }
+
+/** List of World types */
+export const worldTypes = Object.values(WorldType);
 
 /** Content created by an author */
 export type AuthorRelation = { authorId?: number; Author?: APIData<User> };
@@ -148,6 +169,158 @@ export type CharacterRelation = {
   Character?: APIData<Character>;
 };
 
+/** An `Exploration` is a CYOA-style exploration of a `World` or `Location`, based on a `Book` */
+export type Exploration = {
+  title: string;
+  description?: string;
+  image?: string;
+  config?: string; // stringified JSON config data (`ExplorationCanvasConfig`)
+  usesAttributes?: string;
+  public?: boolean;
+  price?: number;
+  Scenes: APIData<ExplorationScene>[];
+} & AuthorRelation &
+  WorldRelation &
+  LocationRelation;
+
+/**
+ * An `Exploration Scene` links a `Book Scene` to an `Exploration` instance. It contains additional JSON data
+ * that is used to render the scene in the context of the exploration. */
+export type ExplorationScene = {
+  title: string;
+  description: string;
+  config?: string; // stringified JSON config data (`ExplorationCanvasConfig`)
+  order: number;
+  background: string; // JSON data for rendering background layer
+  foreground: string; // JSON data for rendering foreground layer
+  characters: string; // JSON data for rendering characters layer
+  explorationId?: number; // ( references Exploration )
+  Exploration?: Exploration; // @relation(fields: [explorationId], references: [id], onDelete: Cascade)
+} & AuthorRelation;
+
+export enum ExplorationCanvasType {
+  STORY = "story",
+  MAP = "map"
+}
+export const explorationCanvasTypes = Object.values(ExplorationCanvasType);
+
+/** Configuration settings for the `Exploration` canvas */
+export type ExplorationCanvasConfig = {
+  type: ExplorationCanvasType;
+  width?: number; // default 2000; required if creating map
+  height?: number; // default 2000; required if creating map
+};
+
+/** @client  */
+export enum SlotAction {
+  NONE = "none", // Default no-op action
+  CHOOSE = "Choose", // show choice dialog
+  HIT_PLAYER = "Hit Player", // hit player with damage
+  HIT_TARGET = "Hit Target", // hit selected target with damage
+  NAV_SCENE = "Change Scene", // change room
+  NAV_LOCATION = "Change Location", // link to another Exploration
+  SHOW_TEXT = "Show Text" // show soem text description
+}
+export const explorationTemplateActions = Object.values(SlotAction).filter(
+  (a) => a !== SlotAction.NONE
+);
+
+export enum ExplorationTemplateEvent {
+  CLICK = "click",
+  DRAG_HZ = "horizontal_drag",
+  DRAG_VT = "vertical_drag"
+}
+export const explorationTemplateEvents = Object.values(
+  ExplorationTemplateEvent
+);
+
+/** @client  */
+
+/**
+ * @client An `Exploration Template Scene` describes a type of scene in an `Exploration Template`.
+ * It holds multiple `Exploration Template Slots`, each which defines how a `Book Scene` should be rendered.
+ */
+export type ExplorationSceneTemplate = Omit<
+  ExplorationScene,
+  | "background"
+  | "config"
+  | "foreground"
+  | "characters"
+  | "Author"
+  | "Exploration"
+> & {
+  id?: number;
+  /* JSON data for rendering scenes */
+  config?: ExplorationCanvasConfig;
+  /** scene background image (stringify to server; json.parse on load) */
+  background: InteractiveSlot[];
+  /** scene characters (stringify to server; json.parse on load) */
+  characters: InteractiveSlot[];
+  /** scene foreground images (stringify to server; json.parse on load) */
+  foreground: InteractiveSlot[];
+};
+export type InternalPointLike = [x: number, y: number];
+
+export type InteractiveSlotCore = {
+  /** Slot name */
+  name?: string;
+  /** Slot coordinates, merged  */
+  xy?: InternalPointLike;
+} & Pick<ComponentPropsWithRef<typeof Container>, "scale" | "anchor">;
+
+export type InteractiveSlot = {
+  /** Slot image asset */
+  url?: string;
+  /** Slot index in scene */
+  index?: number;
+  /** Events and consequences triggered by this slot */
+  interaction?: SlotInteraction;
+  /** Disable position and size editing */
+  lock?: { position?: boolean; size?: boolean };
+} & InteractiveSlotCore;
+
+export type SlotInteraction = {
+  /** Interaction Event data */
+  data?: SlotInteractionData;
+  /** Interaction Event types */
+  event?: ExplorationTemplateEvent;
+  action?: SlotAction;
+};
+export type SlotInteractionChoice = {
+  text: string;
+  action: SlotAction;
+  data?: SlotInteractionData;
+};
+export type SlotInteractionData = {
+  /** Any text to show when interaction begins (attributed to slot-origin) */
+  text?: string;
+  /** Event target scene id */
+  target?: number;
+  /** Optional choices that can be made by triggering this slot */
+  choices?: SlotInteractionChoice[];
+};
+
+/**
+ * @client An `Exploration Template Scene Slot` describes a single slot in an `Exploration Template`.
+ * It defines what data is required to fill the slot, which will in turn render an asset.
+ */
+export enum ExplorationTemplateSceneSlotType {
+  /** A background image slot */
+  BACKGROUND = "Background",
+  /** A foreground image slot */
+  FOREGROUND = "Foreground",
+  /** A character image slot */
+  CHARACTER = "Character",
+  /** A text slot */
+  TEXT = "Text",
+  /** A choice slot */
+  CHOICE = "Choice"
+}
+
+export const explorationTemplateSceneSlotTypes = Object.values(
+  ExplorationTemplateSceneSlotType
+);
+
 /** Content tagged to a `PopulationGroup` */
 export type GroupRelation = {
   groupId?: number;
@@ -156,7 +329,7 @@ export type GroupRelation = {
 
 /** Content tagged to a `Location` */
 export type LocationRelation = {
-  locationId?: number;
+  locationId?: Nullable<number>;
   Location?: APIData<Location>;
 };
 
@@ -204,6 +377,9 @@ export type Book = {
   genre: string;
   public: boolean;
   free: boolean;
+  price: number;
+  worldId?: number; // partial world relation
+  locationId?: number; // partial location relation
   Chapters: APIData<Chapter>[];
 } & AuthorRelation &
   SeriesRelation;
@@ -347,7 +523,7 @@ export type WorldCore = {
 };
 export type World = WorldCore & {
   childWorldsCount: number;
-  parentWorldId?: number;
+  parentWorldId?: number | null;
   Locations: APIData<Location>[];
   Timelines: APIData<Timeline>[];
   Events: APIData<WorldEvent>[];
@@ -375,3 +551,6 @@ export type LibraryPurchase = {
 export type ArrayKeys<T> = {
   [K in keyof T]: T[K] extends Array<any> ? K : never;
 }[keyof T];
+
+// A generally nullable type
+export type Nullable<T> = T | null;

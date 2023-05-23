@@ -14,10 +14,20 @@ import WorldLocationsList from "../components/List.WorldLocations";
 import PageLayout from "components/Common/PageLayout";
 import TimelinesList from "components/List.Timelines";
 import { loadTimelines } from "api/loadUserData";
-import { GlobalCharacter, MODAL, clearGlobalCharacter } from "state";
+import {
+  GlobalCharacter,
+  GlobalWorldInstanceKey,
+  MODAL,
+  clearGlobalCharacter,
+  clearGlobalModal,
+  clearGlobalWorld,
+  setGlobalLocation
+} from "state";
 import CharactersList from "components/List.Characters";
 import WorldsList from "components/List.Worlds";
 import WorldActions from "components/WorldActions";
+import ExplorationsList from "components/List.Explorations";
+import useGlobalExploration from "hooks/GlobalExploration";
 
 const { Worlds: WorldPaths } = Paths;
 const PageGrid = styled(GridContainer)`
@@ -27,37 +37,40 @@ const PageGrid = styled(GridContainer)`
   }
 `;
 
+const wkeys: GlobalWorldInstanceKey[] = [
+  "focusedLocation",
+  "focusedTimeline",
+  "focusedWorld",
+  "timelines",
+  "worldLocations"
+];
+
 /** @route List of World `Locations` */
 const WorldLocationsListRoute = () => {
   const { id: userId, authenticated } = useGlobalUser(["id", "authenticated"]);
-  const { clearGlobalModal, setGlobalModal, MODAL } = useGlobalModal();
+  const { explorations = [] } = useGlobalExploration(["explorations"]);
   const {
-    clearGlobalWorld,
-    setGlobalLocation,
     focusedLocation,
     focusedTimeline,
     focusedWorld,
     timelines = [],
     worldLocations = []
-  } = useGlobalWorld([
-    "focusedLocation",
-    "focusedTimeline",
-    "focusedWorld",
-    "timelines",
-    "worldLocations"
-  ]);
+  } = useGlobalWorld(wkeys);
   const { worldId: wid } = useParams<{ worldId: string }>();
   const worldId = useMemo(() => Number(wid), [wid]);
   const worldTimelines = useMemo(
     () => timelines.filter(({ worldId: w }) => w === worldId),
     [timelines]
   );
+  const localExplorations = useMemo(() => {
+    return explorations.filter((e) => e.worldId === worldId);
+  }, [explorations, worldId]);
   const [place, isPublic, publicClass, isAuthor, worldIcon] = useMemo(() => {
     const author = focusedWorld?.authorId === userId;
     const isPub = focusedWorld?.public;
     const role = author ? "Author" : ("Reader" as UserRole);
     return [
-      focusedWorld?.name || WorldPaths.Locations.text,
+      focusedWorld?.name || WorldPaths.LocationsList.text,
       isPub,
       isPub ? "success--text" : "error--text",
       author,
@@ -75,13 +88,6 @@ const WorldLocationsListRoute = () => {
     clearGlobalModal();
     setGlobalLocation(null);
   };
-  const loadComponentData = async () => {
-    await Promise.all([
-      loadWorld({ worldId: Number(worldId) }),
-      loadTimelines({ worldId: Number(worldId) }),
-      loadCharacters({ worldId: Number(worldId) })
-    ]);
-  };
   const clearComponentData = () => {
     clearModalData();
     clearGlobalWorld();
@@ -94,20 +100,18 @@ const WorldLocationsListRoute = () => {
     </>
   );
 
-  useEffect(() => {
-    loadComponentData();
-    return clearComponentData;
-  }, [worldId]);
+  useEffect(() => clearComponentData, [worldId]);
 
   return (
     <PageLayout
       id="world-locations"
-      breadcrumbs={[WorldPaths.Index, WorldPaths.Locations]}
+      breadcrumbs={[WorldPaths.Index, WorldPaths.LocationsList]}
       title={PageTitle}
       description={`(<b class="${publicClass}">${worldType}</b>) ${worldDesc}`}
     >
       <PageGrid className="fill" gap="0.6rem">
         <section>
+          <ExplorationsList showControls explorations={localExplorations} />
           {ChildWorlds.length > 0 && (
             <>
               <WorldsList worlds={ChildWorlds} focusedWorld={focusedWorld} />

@@ -10,6 +10,11 @@ resource "random_string" "encrypt_secret" {
   upper   = true
 }
 
+resource "aws_key_pair" "mf_main" {
+  key_name   = "mf_main"
+  public_key = var.ssh_key
+}
+
 resource "aws_security_group" "mf-api-sg" {
   name        = "mf-api"
   description = "Mythos Forge API Security Group"
@@ -49,13 +54,12 @@ resource "aws_instance" "mf-api-instance" {
   subnet_id              = var.subnet_id_1
   vpc_security_group_ids = [aws_security_group.mf-api-sg.id]
   depends_on             = [aws_security_group.mf-api-sg, aws_db_instance.mf_database]
+  key_name               = aws_key_pair.mf_main.key_name
 
   connection {
     type        = "ssh"
     host        = aws_instance.mf-api-instance.public_ip
     user        = "ubuntu"
-    private_key = file("~/.ssh/MF_Main.cer")
-    insecure    = true
   }
 
   provisioner "remote-exec" {

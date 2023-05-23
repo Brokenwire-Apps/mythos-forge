@@ -1,8 +1,7 @@
 import "graphql-import-node";
 import { ApolloServer } from "apollo-server-express";
-import { json } from "body-parser";
+import { json } from 'body-parser';
 import express, { Express } from "express";
-import { rateLimit } from "express-rate-limit";
 import cors from "cors";
 import morgan from "morgan";
 import { schema } from "./graphql/index";
@@ -11,8 +10,13 @@ import logger from "./logger";
 import { configurePassport } from "./services/passport";
 import { downloadBookHandler } from "./services/document.service";
 import { generateWritingPromptHandler } from "./services/openai.service";
-import { PORT, UIPORT, env } from "./constants";
-import { fileDeleteHandler, fileUploadHandler, listUserFilesHandler } from "./services/aws.service";
+import { rateLimit } from "express-rate-limit";
+import { APP_UI, PORT, env } from "./constants";
+import {
+  fileDeleteHandler,
+  fileUploadHandler,
+  listUserFilesHandler
+} from "./services/aws.service";
 import multer from "multer";
 
 /** Run server */
@@ -25,14 +29,12 @@ async function main() {
   app.use(express.urlencoded({ extended: false }));
 
   // CORS
-  const origin = [
-    `http://localhost:${UIPORT}`,
-    "https://studio.apollographql.com"
-  ];
+  const origin = [APP_UI];
+  if (env !== "production") origin.push("https://studio.apollographql.com");
   app.use("*", cors({ credentials: true, origin }), json());
 
   configureRateLimiter(app); // rate Limiter
-  configurePassport(app); // passportjs
+  configurePassport(app); // passportjs authentication
 
   // APOLLO SERVER
   const apolloServer = new ApolloServer({
@@ -55,7 +57,12 @@ async function main() {
   app.post("/files/:category/delete", fileDeleteHandler);
   app.post("/files/:category/list", listUserFilesHandler);
   const upload = multer();
-  app.post("/files/:category/upload", upload.single("imageFile"), fileUploadHandler);
+  // NOTE: This expects a form-data body with a file field named `imageFile`!
+  app.post(
+    "/files/:category/upload",
+    upload.single("imageFile"),
+    fileUploadHandler
+  );
 
   // LISTEN TO APP
   app.listen(PORT, async () => {

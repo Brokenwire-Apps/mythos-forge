@@ -1,8 +1,13 @@
-VARS="secrets.tfvars"
+ifneq (,$(wildcard ./.env))
+	include .env
+endif
+SHELL := /bin/bash
+export
 
 # dev env spin up
 dev:
-	npm i -g concurrently
+# Only install concurrently if it's not already installed
+	npm list -g concurrently || npm i -g concurrently
 	concurrently "make dev-web" "make dev-api"
 
 # run dev web
@@ -18,17 +23,26 @@ build:
 	cp -rf ./api/package.json ./api/lib/
 	cp -rf ./api/prisma ./api/lib/
 
-tf-init: build
+tf-init:
 	cd ./terraform && terraform init
 
-terraform-plan: tf-init
-	cd ./terraform && terraform plan -auto-approve -var-file="$(VARS)"
+tf-upgrade:
+	cd ./terraform && terraform init -upgrade
 
-terraform-deploy: tf-init
-	cd ./terraform && terraform apply -auto-approve -var-file="$(VARS)"
+tf-plan: tf-init
+	cd ./terraform && terraform plan -lock=false
 
-terraform-redeploy: tf-init
-	cd ./terraform && terraform apply -replace=$(target) -auto-approve -var-file="$(VARS)"
+tf-deploy: tf-init
+	cd ./terraform && terraform apply -auto-approve -lock=false
+	aws s3 cp ./web/dist s3://www-mythosforge-app-bucket --recursive --acl public-read
+
+tf-deploy-local: build tf-init
+	cd ./terraform && terraform apply -auto-approve -lock=false
+	aws s3 cp ./web/dist s3://www-mythosforge-app-bucket --recursive --acl public-read
+
+tf-redeploy: tf-init
+	cd ./terraform && terraform apply -replace=$(target) -auto-approve -lock=false
+	aws s3 cp ./web/dist s3://www-mythosforge-app-bucket --recursive --acl public-read
 
 hulk-smash:
-	cd ./terraform && terraform destroy -auto-approve -var-file="$(VARS)"
+	cd ./terraform && terraform destroy -auto-approve

@@ -5,15 +5,19 @@
  */
 
 export * from "./enums";
+
 export * from "./CDateTime";
-export * from "./MFUser";
 export * from "./MFAuthor";
 export * from "./MFBook";
 export * from "./MFChapter";
 export * from "./MFCharacter";
 export * from "./MFCharacterRelationship";
 export * from "./MFEvent";
+export * from "./MFExploration";
+export * from "./MFExplorationScene";
+export * from "./MFLibrary";
 export * from "./MFLocation";
+export * from "./MFNote";
 export * from "./MFPopulationGroup";
 export * from "./MFScene";
 export * from "./MFSceneContentLink";
