@@ -1,6 +1,6 @@
 {
   "name": "mythos-forge",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "MythosForge api and UI",
   "main": "none",
   "scripts": {
