@@ -51,13 +51,23 @@ const Container = styled(FormRow)`
 /** @form Create or edit data for an `Interactive Slot` in an `Exploration` template */
 const CreateInteractiveSlotDataForm = (props: SlotDataFormProps) => {
   const { value: data = {}, onChange = noOp, event, action } = props;
-  const { exploration, explorationScene } = GlobalExploration.getState();
+  const exState = GlobalExploration.getState();
+  const { exploration, explorations = [], explorationScene } = exState;
+  const localExplorations = explorations.filter(
+    (e) => e.worldId === exploration?.worldId && e.id !== exploration?.id
+  );
   const { Scenes = [] } = exploration || {};
   const { choices = [] } = data;
   const otherScenes = Scenes.filter((s) => s.id !== explorationScene?.id);
   const [expanded, expand] = useState(true);
   const clearNavTarget = () => {
     onChange({ ...data, target: undefined, text: undefined });
+  };
+  const updateExplorationTarget = (target: number) => {
+    if (!target || isNaN(target)) return clearNavTarget();
+    const sc = localExplorations.find((s) => s.id === target);
+    const text = sc?.title;
+    onChange({ ...data, target, text });
   };
   const updateNavTarget = (target: number) => {
     if (!target || isNaN(target)) return clearNavTarget();
@@ -106,8 +116,11 @@ const CreateInteractiveSlotDataForm = (props: SlotDataFormProps) => {
           <Label columns="auto">
             <span className="label flex">Navigate to Scene:</span>
             <Hint>
-              Navigate to a new scene when you <Accent as="b">{event}</Accent>{" "}
-              this slot.
+              Navigate to a{" "}
+              <Accent as="b">
+                new scene in the current <b>Exploration</b>
+              </Accent>{" "}
+              when you <Accent as="b">{event}</Accent> this slot.
             </Hint>
             <Select
               aria-invalid={!data.target}
@@ -122,11 +135,32 @@ const CreateInteractiveSlotDataForm = (props: SlotDataFormProps) => {
           </Label>
         )}
 
+        {action === SlotAction.NAV_EXPLORATION && (
+          <Label columns="auto">
+            <span className="label flex">Go to Exploration:</span>
+            <Hint>
+              Navigate to a <Accent as="b">new Exploration</Accent> when you{" "}
+              <Accent as="b">{event}</Accent> this slot.
+            </Hint>
+            <Select
+              aria-invalid={!data.target}
+              data={localExplorations}
+              value={data?.target || ""}
+              itemText={(s) => s.title}
+              itemValue={(s) => s.id}
+              emptyMessage="No other Explorations found!"
+              placeholder="Select Exploration:"
+              onChange={(s) => updateExplorationTarget(Number(s))}
+            />
+          </Label>
+        )}
+
         {action === SlotAction.SHOW_TEXT && (
           <Label columns="auto">
             <span className="label flex">Enter text to show:</span>
             <Hint>
-              Show character dialogue or an item description when you{" "}
+              Show <Accent as="b">character dialogue</Accent> or an{" "}
+              <Accent as="b">item description</Accent> when you{" "}
               <Accent as="b">{event}</Accent> this slot..
             </Hint>
             <Textarea

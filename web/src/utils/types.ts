@@ -218,7 +218,7 @@ export enum SlotAction {
   HIT_PLAYER = "Hit Player", // hit player with damage
   HIT_TARGET = "Hit Target", // hit selected target with damage
   NAV_SCENE = "Change Scene", // change room
-  NAV_LOCATION = "Change Location", // link to another Exploration
+  NAV_EXPLORATION = "Change Location", // link to another Exploration
   SHOW_TEXT = "Show Text" // show soem text description
 }
 export const explorationTemplateActions = Object.values(SlotAction).filter(

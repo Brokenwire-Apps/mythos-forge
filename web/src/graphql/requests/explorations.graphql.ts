@@ -88,6 +88,7 @@ export async function upsertExploration(
   const pruned = pruneExplorationData(data);
   return fetchGQL<APIData<Exploration> | null>({
     query: upsertExplorationMutation(),
+    refetchQueries: [{ query: gql(listExplorationsQuery()) }],
     variables: { data: pruned },
     onResolve: (x, errors) => errors || x.upsertExploration,
     fallbackResponse: null
