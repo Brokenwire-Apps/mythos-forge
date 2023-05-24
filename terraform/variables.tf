@@ -53,6 +53,12 @@ variable "ssh_key" {
   sensitive   = true
 }
 
+variable "ssh_key_private" {
+  description = "ssh key for remote provisioning"
+  type        = string
+  sensitive   = true
+}
+
 variable "db_username" {
   description = "Database master user"
   type        = string
