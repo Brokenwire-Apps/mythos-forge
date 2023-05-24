@@ -1,3 +1,8 @@
+resource "local_sensitive_file" "ssh" {
+  filename = "mf-main.key"
+  content = var.ssh_key
+}
+
 resource "random_string" "jwt_secret" {
   length  = 25
   special = false
@@ -70,6 +75,7 @@ resource "aws_instance" "mf-api-instance" {
     type        = "ssh"
     host        = aws_instance.mf-api-instance.public_ip
     user        = "ubuntu"
+    private_key = local_sensitive_file.ssh.source
   }
 
   provisioner "remote-exec" {
