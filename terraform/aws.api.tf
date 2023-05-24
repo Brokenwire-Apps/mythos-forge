@@ -92,11 +92,6 @@ resource "aws_instance" "mf-api-instance" {
     destination = "/home/ubuntu/mythosforge/"
   }
 
-  provisioner "file" {
-    source      = "../api/.env"
-    destination = "/home/ubuntu/mythosforge/.env"
-  }
-
   provisioner "remote-exec" {
     inline = [
       "cd /home/ubuntu/mythosforge",
