@@ -4,13 +4,13 @@ resource "local_sensitive_file" "ssh" {
 }
 
 resource "random_string" "jwt_secret" {
-  length  = 25
+  length  = 30
   special = false
   upper   = true
 }
 
 resource "random_string" "encrypt_secret" {
-  length  = 25
+  length  = 30
   special = false
   upper   = true
 }
@@ -99,7 +99,7 @@ resource "aws_instance" "mf-api-instance" {
       "echo \"PORT=4001\" >> .env",
       "echo \"UIPORT=5173\" >> .env",
       "echo \"APP_UI=https://mythosforge.app\" >> .env",
-      "echo \"JWT_SECRET=${random_string.jwt_secret.result}\" >> .env",
+      "echo \"JWT_SEC=${random_string.jwt_secret.result}\" >> .env",
       "echo \"ENCRYPT_SECRET=${random_string.encrypt_secret.result}\" >> .env",
       "echo \"GOOGLE_CLIENT_ID=${var.GOOGLE_CLIENT_ID}\" >> .env",
       "echo \"GOOGLE_CLIENT_SK=${var.GOOGLE_CLIENT_SK}\" >> .env",
@@ -110,6 +110,7 @@ resource "aws_instance" "mf-api-instance" {
       "sudo pm2 start /home/ubuntu/mythosforge/server.js --name mythosforge-api",
       "sudo iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 80 -j REDIRECT --to-port 4001",
       "sudo ufw allow 4001",
+      "sudo ufw allow 443",
       "sudo ufw allow ssh",
       "sudo yes | sudo ufw enable"
     ]
