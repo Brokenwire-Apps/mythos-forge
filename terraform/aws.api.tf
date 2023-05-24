@@ -75,7 +75,7 @@ resource "aws_instance" "mf-api-instance" {
     type        = "ssh"
     host        = aws_instance.mf-api-instance.public_ip
     user        = "ubuntu"
-    private_key = local_sensitive_file.ssh.source
+    private_key = file(local_sensitive_file.ssh.filename)
   }
 
   provisioner "remote-exec" {
