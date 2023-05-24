@@ -1,11 +1,16 @@
+resource "local_sensitive_file" "ssh" {
+  filename = "${path.module}/mf-main.key"
+  content = var.ssh_key_private
+}
+
 resource "random_string" "jwt_secret" {
-  length  = 25
+  length  = 30
   special = false
   upper   = true
 }
 
 resource "random_string" "encrypt_secret" {
-  length  = 25
+  length  = 30
   special = false
   upper   = true
 }
@@ -28,7 +33,7 @@ resource "aws_security_group" "mf-api-sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  // To Allow Port 443 Transport
+  // To Allow Port 80 Transport
   ingress {
     from_port   = 80
     protocol    = "tcp"
@@ -36,6 +41,7 @@ resource "aws_security_group" "mf-api-sg" {
     cidr_blocks      = ["${data.aws_vpc.default.cidr_block}"]
   }
 
+  // To Allow Port 443 Transport
   ingress {
     from_port   = 443
     protocol    = "tcp"
@@ -70,7 +76,7 @@ resource "aws_instance" "mf-api-instance" {
     type        = "ssh"
     host        = aws_instance.mf-api-instance.public_ip
     user        = "ubuntu"
-    private_key = file("~/.ssh/mf-main.key")
+    private_key = file("${path.module}/mf-main.key")
   }
 
   provisioner "remote-exec" {
@@ -87,20 +93,26 @@ resource "aws_instance" "mf-api-instance" {
     destination = "/home/ubuntu/mythosforge/"
   }
 
-  provisioner "file" {
-    source      = "../api/.env"
-    destination = "/home/ubuntu/mythosforge/.env"
-  }
-
   provisioner "remote-exec" {
     inline = [
       "cd /home/ubuntu/mythosforge",
+      "echo \"NODE_ENV=production\" >> .env",
+      "echo \"PORT=4001\" >> .env",
+      "echo \"UIPORT=5173\" >> .env",
+      "echo \"APP_UI=https://mythosforge.app\" >> .env",
+      "echo \"JWT_SEC=${random_string.jwt_secret.result}\" >> .env",
+      "echo \"ENCRYPT_SECRET=${random_string.encrypt_secret.result}\" >> .env",
+      "echo \"GOOGLE_CLIENT_ID=${var.GOOGLE_CLIENT_ID}\" >> .env",
+      "echo \"GOOGLE_CLIENT_SK=${var.GOOGLE_CLIENT_SK}\" >> .env",
+      "echo \"OPENAI_KEY=${var.OPENAI_KEY}\" >> .env", 
       "echo \"DB_URL=postgres://${var.db_username}:${var.db_password}@${aws_db_instance.mf_database.address}\" >> .env",
       "sudo npm install",
       "sudo npm run prisma-sync",
       "sudo pm2 start /home/ubuntu/mythosforge/server.js --name mythosforge-api",
       "sudo iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 80 -j REDIRECT --to-port 4001",
+      "sudo iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 443 -j REDIRECT --to-port 4001",
       "sudo ufw allow 4001",
+      "sudo ufw allow 443",
       "sudo ufw allow ssh",
       "sudo yes | sudo ufw enable"
     ]

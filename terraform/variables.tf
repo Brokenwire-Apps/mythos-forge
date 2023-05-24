@@ -53,6 +53,12 @@ variable "ssh_key" {
   sensitive   = true
 }
 
+variable "ssh_key_private" {
+  description = "ssh key for remote provisioning"
+  type        = string
+  sensitive   = true
+}
+
 variable "db_username" {
   description = "Database master user"
   type        = string
@@ -87,4 +93,10 @@ variable "app_version" {
   description = "A shared app-version value for both API and UI"
   type        = string 
   sensitive   = false
+}
+
+variable "OPENAI_KEY" {
+  description = "OpenAI API Key"
+  type        = string
+  sensitive   = true
 }

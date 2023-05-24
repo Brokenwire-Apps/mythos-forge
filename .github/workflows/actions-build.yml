@@ -29,11 +29,23 @@ jobs:
       TF_VAR_domain_name: ${{ secrets.TF_VAR_domain_name }}
       TF_VAR_domain_name_www: ${{ secrets.TF_VAR_domain_name_www }}
       TF_VAR_bucket_name: ${{ secrets.TF_VAR_bucket_name }}
+      TF_VAR_ssh_key_private: ${{ secrets.TF_VAR_ssh_key_private }}
+      TF_VAR_OPENAI_KEY: ${{ secrets.TF_VAR_OPENAI_KEY }}
     steps:
       - name: checkout repo
         uses: actions/checkout@v3
+      - name: get package version
+        id: get-version
+        uses: beaconbrigade/package-json-version@v0.3
+        with:
+          path: .
+      - name: Set environmental variables
+        run: |
+          echo "TF_VAR_app_version=${{ steps.get-version.outputs.version }}" >> $GITHUB_ENV
       - name: build application
         run: make build
+      - name: terraform plan
+        run: make tf-plan
   deploy-dev:
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
@@ -55,6 +67,8 @@ jobs:
       TF_VAR_domain_name: ${{ secrets.TF_VAR_domain_name }}
       TF_VAR_domain_name_www: ${{ secrets.TF_VAR_domain_name_www }}
       TF_VAR_bucket_name: ${{ secrets.TF_VAR_bucket_name }}
+      TF_VAR_ssh_key_private: ${{ secrets.TF_VAR_ssh_key_private }}
+      TF_VAR_OPENAI_KEY: ${{ secrets.TF_VAR_OPENAI_KEY }}
     steps:
       - name: checkout repo
         uses: actions/checkout@v3
@@ -63,12 +77,10 @@ jobs:
         uses: beaconbrigade/package-json-version@v0.3
         with:
           path: .
-      - name: "Set environmental variables"
+      - name: Set environmental variables
         run: |
           echo "TF_VAR_app_version=${{ steps.get-version.outputs.version }}" >> $GITHUB_ENV
       - name: AWS Config
         run: aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }} && aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }} && aws configure set default.region us-east-1
-      - name: terraform plan
-        run: make tf-plan
       - name: terraform apply
         run: make tf-deploy
