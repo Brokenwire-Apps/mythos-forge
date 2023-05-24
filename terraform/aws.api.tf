@@ -70,7 +70,6 @@ resource "aws_instance" "mf-api-instance" {
     type        = "ssh"
     host        = aws_instance.mf-api-instance.public_ip
     user        = "ubuntu"
-    private_key = file("~/.ssh/mf-main.key")
   }
 
   provisioner "remote-exec" {
