@@ -107,7 +107,7 @@ resource "aws_instance" "mf-api-instance" {
       "echo \"JWT_SECRET=${random_string.jwt_secret.result}\" >> .env",
       "echo \"ENCRYPT_SECRET=${random_string.encrypt_secret.result}\" >> .env",
       "echo \"GOOGLE_CLIENT_ID=${var.GOOGLE_CLIENT_ID}\" >> .env",
-      "echo \"GOOGLE_CLIENT_SECRET=${var.GOOGLE_CLIENT_SECRET}\" >> .env",
+      "echo \"GOOGLE_CLIENT_SK=${var.GOOGLE_CLIENT_SK}\" >> .env",
       "echo \"OPENAI_KEY=${var.OPENAI_KEY}\" >> .env", 
       "echo \"DB_URL=postgres://${var.db_username}:${var.db_password}@${aws_db_instance.mf_database.address}\" >> .env",
       "sudo npm install",
