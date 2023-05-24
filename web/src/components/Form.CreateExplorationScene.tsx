@@ -51,12 +51,7 @@ const CreateExplorationSceneForm = (props: CreateExplorationSceneProps) => {
   const { explorationScene } = useGlobalExploration(["explorationScene"]);
   const initialFormData = emptyForm();
   const [data, setData] = useState(initialFormData);
-  const config = useMemo(
-    () =>
-      (data.config ||
-        createExplorationSceneConfig()) as ExplorationCanvasConfig,
-    [data]
-  );
+  const config = useMemo(() => data.config as ExplorationCanvasConfig, [data]);
   const update = (data: ExplorationSceneTemplate) => {
     setData(data);
     onChange(data);
@@ -69,21 +64,25 @@ const CreateExplorationSceneForm = (props: CreateExplorationSceneProps) => {
   };
   const updateDescription = (description: string) =>
     update({ ...data, description });
-  const updateConfigWidth = (v: number) =>
-    onChange({ ...data, config: { ...config, width: v } });
-  const updateConfigHeight = (v: number) =>
-    onChange({ ...data, config: { ...config, height: v } });
+  const updateConfigWidth = (v: number) => {
+    const newConfig = { ...data.config, width: v } as ExplorationCanvasConfig;
+    update({ ...data, config: newConfig });
+  };
+  const updateConfigHeight = (v: number) => {
+    const newConfig = { ...data.config, height: v } as ExplorationCanvasConfig;
+    update({ ...data, config: newConfig });
+  };
   const updateConfigType = (type: ExplorationCanvasType) => {
     const next: ExplorationCanvasConfig = { type };
     if (type === ExplorationCanvasType.MAP) {
-      next.width = 2000;
-      next.height = 2000;
+      next.width = 0;
+      next.height = 0;
     }
     update({ ...data, config: next });
   };
 
   useEffect(() => {
-    update(initialFormData);
+    update(data);
   }, []);
 
   return (
@@ -97,7 +96,7 @@ const CreateExplorationSceneForm = (props: CreateExplorationSceneProps) => {
         {explorationScene?.order}).
       </Hint>
 
-      {/* Title */}
+      {/* Order + Title */}
       <FormRow columns="max-content 8fr">
         <Label direction="column">
           <span className="label required">
@@ -128,6 +127,7 @@ const CreateExplorationSceneForm = (props: CreateExplorationSceneProps) => {
 
       <hr className="transparent" />
 
+      {/* Canvas Settings */}
       <Fieldset>
         <Legend>Canvas Settings</Legend>
         <FormRow columns="repeat(3, 1fr)">
@@ -160,7 +160,7 @@ const CreateExplorationSceneForm = (props: CreateExplorationSceneProps) => {
                 <Input
                   placeholder="2000"
                   type="text"
-                  value={config.width || ""}
+                  value={data.config?.width || ""}
                   onChange={({ target }) =>
                     updateConfigWidth(Number(target.value))
                   }
@@ -175,7 +175,7 @@ const CreateExplorationSceneForm = (props: CreateExplorationSceneProps) => {
                 <Input
                   placeholder="2000"
                   type="text"
-                  value={config.height || ""}
+                  value={data.config?.height || ""}
                   onChange={({ target }) =>
                     updateConfigHeight(Number(target.value))
                   }

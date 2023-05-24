@@ -31,6 +31,7 @@ export default function ManageExplorationSceneModal(
   const { exploration } = useGlobalExploration(["exploration"]);
   const [formData, setFormData] = useState<ExplorationSceneTemplate>();
   const [error, setError] = useState("");
+  const action = formData?.id ? "Edit" : "Create";
   const err = (msg: string, noteId?: number) => {
     setError(msg);
     if (noteId) updateAsError(msg, noteId);
@@ -62,7 +63,7 @@ export default function ManageExplorationSceneModal(
     <Modal
       open={open}
       onClose={onClose}
-      title={`${formData?.id ? "Edit" : "Create"} Exploration Scene`}
+      title={`${action} <b class="accent--text">Exploration Scene</b>`}
       cancelText="Cancel"
       confirmText={formData?.id ? "Update" : "Create"}
       onConfirm={submit}

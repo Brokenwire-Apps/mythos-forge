@@ -1,3 +1,4 @@
+import { loadExploration } from "api/loadUserData";
 import {
   GlobalExploration,
   convertAPISceneToTemplate,
@@ -38,12 +39,20 @@ export function handleSlotInteraction(opts: SlotHandlerOpts) {
 
   switch (action) {
     case SlotAction.NAV_SCENE: {
+      // Navigate to a new scene
       const next = Scenes.find((d) => d.id === data.target);
       if (!next) return updateAsError("Scene not found");
       return setGlobalExplorationScene(convertAPISceneToTemplate(next));
     }
+    case SlotAction.NAV_EXPLORATION: {
+      // Fetch and load a new Exploration
+      const id = data.target;
+      if (!id) return updateAsError("Exploration not found");
+      return loadExploration({ explorationId: id });
+    }
     case SlotAction.CHOOSE:
     case SlotAction.SHOW_TEXT: {
+      // 
       return setGlobalSceneData({ name, data });
     }
     default:

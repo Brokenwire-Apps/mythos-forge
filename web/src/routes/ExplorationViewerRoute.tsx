@@ -30,6 +30,7 @@ import ExplorationScenesList from "components/List.ExplorationScenes";
 import BuilderToolbar from "components/BuilderToolbar";
 import SceneBuilderHelp from "components/SceneBuilderHelp";
 import { PixiCanvas } from "components/PixiCanvas";
+import { Accent, Card, CardTitle } from "components/Common/Containers";
 
 const { Explorations } = Paths;
 const SpanGrid = styled.span`
@@ -142,23 +143,17 @@ const ExplorationViewerRoute = () => {
       description={pageDescription}
     >
       <section className="fill">
-        {explorationScene && <PixiCanvas onChange={updateAndMaybeSave} />}
-      </section>
-
-      <ModalDrawer
-        title={`Build <b class="accent--text">Exploration</b>`}
-        openTowards="right"
-        open={modalActive}
-        onClose={clearGlobalModal}
-      >
-        {active === MODAL.SELECT_EXPLORATION_SCENE && (
-          <ExplorationScenesList
-            exploration={exploration}
-            explorationScene={explorationScene}
-          />
+        {explorationScene ? (
+          <PixiCanvas />
+        ) : (
+          <Card>
+            <CardTitle>No Scenes Found</CardTitle>
+            <p>
+              This <Accent>Exploration</Accent> does not contain any scenes.
+            </p>
+          </Card>
         )}
-        {active === MODAL.EXPLORATION_BUILDER_HELP && <SceneBuilderHelp />}
-      </ModalDrawer>
+      </section>
     </PageLayout>
   );
 };
