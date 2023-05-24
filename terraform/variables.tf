@@ -94,3 +94,9 @@ variable "app_version" {
   type        = string 
   sensitive   = false
 }
+
+variable "OPENAI_KEY" {
+  description = "OpenAI API Key"
+  type        = string
+  sensitive   = true
+}
