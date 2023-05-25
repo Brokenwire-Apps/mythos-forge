@@ -8,7 +8,6 @@ import {
   GlobalUser,
   GlobalWorld,
   MODAL,
-  addNotification,
   clearGlobalModal,
   updateAsError,
   updateNotification

@@ -6,7 +6,8 @@ import { useGlobalModal } from "hooks/GlobalModal";
 import { ExplorationSceneTemplate, UserRole } from "utils/types";
 import {
   GlobalExploration,
-  MODAL, clearGlobalModal,
+  MODAL,
+  clearGlobalModal,
   convertTemplateToAPIScene,
   setGlobalExploration,
   setGlobalModal,
