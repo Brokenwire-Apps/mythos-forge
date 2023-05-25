@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, lazy, useEffect, useMemo, useState } from "react";
 import { noOp, suppressEvent } from "../utils";
 import {
   Fieldset,
@@ -26,7 +26,6 @@ import { GlobalExploration, GlobalModal, MODAL } from "state";
 import { RoundButton } from "./Forms/Button";
 import MatIcon from "./Common/MatIcon";
 import { Accent, Selectable } from "./Common/Containers";
-import CreateInteractiveSlotDataForm from "./Form.CreateInteractiveSlotData";
 import AWSImagesList from "./AWSImagesList";
 
 export type CreateInteractiveSlotProps = {
@@ -35,6 +34,9 @@ export type CreateInteractiveSlotProps = {
   onSlotImageFile?: (data?: File) => void;
 };
 
+const CreateInteractiveSlotDataForm = lazy(
+  () => import("./Form.CreateInteractiveSlotData")
+);
 const { CLICK, DRAG_HZ, DRAG_VT } = ExplorationTemplateEvent;
 const emptyForm = (): InteractiveSlot => {
   const {
@@ -274,13 +276,15 @@ const CreateInteractiveSlotForm = (props: CreateInteractiveSlotProps) => {
 
           {/* interactions */}
           {event && action && (
-            <CreateInteractiveSlotDataForm
-              event={event}
-              action={action}
-              value={interactionData}
-              onChange={updateInteractionData}
-              onRemove={() => updateInteraction({})}
-            />
+            <Suspense fallback={<p>Loading Form</p>}>
+              <CreateInteractiveSlotDataForm
+                event={event}
+                action={action}
+                value={interactionData}
+                onChange={updateInteractionData}
+                onRemove={() => updateInteraction({})}
+              />
+            </Suspense>
           )}
 
           <hr className="transparent" />

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { Suspense, lazy, useMemo, useState } from "react";
 import {
   MODAL,
   GlobalModal,
@@ -13,7 +13,6 @@ import {
 import { ErrorMessage } from "components/Common/Containers";
 import useGlobalExploration from "hooks/GlobalExploration";
 import { InteractiveSlot } from "utils/types";
-import CreateInteractiveSlotForm from "components/Form.CreateInteractiveSlot";
 import ModalDrawer from "./ModalDrawer";
 import { uploadFileToServer } from "api/loadUserData";
 import {
@@ -30,6 +29,9 @@ type ManageInteractiveSlotModalProps = {
   onClose?: () => void;
 };
 
+const CreateInteractiveSlotForm = lazy(
+  () => import("components/Form.CreateInteractiveSlot")
+);
 /** @modal Create/edit an `Interactive Slot` in a scene */
 export default function ManageInteractiveSlotModal(
   props: ManageInteractiveSlotModalProps
@@ -132,10 +134,12 @@ export default function ManageInteractiveSlotModal(
       confirmText={"Confirm"}
       onConfirm={submit}
     >
-      <CreateInteractiveSlotForm
-        onChange={setFormData}
-        onSlotImageFile={setSlotImage}
-      />
+      <Suspense fallback={<p>Loading form...</p>}>
+        <CreateInteractiveSlotForm
+          onChange={setFormData}
+          onSlotImageFile={setSlotImage}
+        />
+      </Suspense>
       {error && <ErrorMessage>{error}</ErrorMessage>}
 
       {editing && (
