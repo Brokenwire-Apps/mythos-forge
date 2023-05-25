@@ -91,7 +91,7 @@ export function updateAsError(msg: string, id: number = -1) {
 
 export function updateNotification(
   msg: string,
-  id: number | null,
+  id: number | null = -1,
   persist = false
 ) {
   if (!notificationsActive()) return;

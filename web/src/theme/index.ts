@@ -117,6 +117,9 @@ const THEME: GlobalTheme = {
     .warning--text{ 
       color: ${({ theme }) => theme.colors.warning}; 
     }
+    .wide {
+      width: 100%;
+    }
   
     a {
       font-weight: 500;
@@ -152,6 +155,11 @@ const THEME: GlobalTheme = {
       background-color: ${({ theme }) => theme.colors.semitransparent};
       border: 0;
       height: 0.025rem;
+
+      &.vertical {
+        height: 16px;
+        width: 0.025rem;
+      }
     }
   }
 

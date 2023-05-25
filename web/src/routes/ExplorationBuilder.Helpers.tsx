@@ -4,7 +4,8 @@ import {
   SlotAction,
   InteractiveSlot,
   SlotInteraction,
-  ExplorationCanvasType
+  ExplorationCanvasType,
+  SlotInteractionData
 } from "utils/types";
 
 /** Create an `Exploration Template` */
@@ -52,4 +53,10 @@ export function createExplorationSceneConfig(): ExplorationSceneTemplate["config
 /** Create an `Interaction` for an on-screen item  */
 export function createInteraction(): SlotInteraction {
   return { data: {} };
+}
+
+export function newActionData(a: SlotAction): SlotInteractionData {
+  return a === SlotAction.CHECK_ATTR
+    ? { choices: [{ text: "Success" }, { text: "Failure" }] }
+    : {};
 }

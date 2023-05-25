@@ -18,6 +18,7 @@ import PixiEditorLayers from "./PixiLayers.Editor";
 import PixiSceneIntro from "./PixiSceneIntro";
 import PixiCanvasBackground from "./PixiCanvasBackground";
 import PixiViewport, { ViewportPlugins } from "./PixiViewport";
+import { Accent } from "./Common/Containers";
 
 const PixiCanvasDialog = lazy(() => import("./PixiCanvasDialog"));
 const PixiCanvasToolbar = lazy(() => import("./PixiCanvasToolbar"));
@@ -91,6 +92,7 @@ export const PixiCanvas = (props: CanvasProps) => {
 
   return (
     <Canvas>
+      {explorationScene && <ExplorationSceneName />}
       {size.width > 0 ? (
         <Stage
           id="canvas--scene"
@@ -148,3 +150,27 @@ export const PixiCanvas = (props: CanvasProps) => {
     </Canvas>
   );
 };
+
+const SceneName = styled.span`
+  background-color: black;
+  color: white;
+  display: inline-block;
+  font-weight: bold;
+  bottom: 0;
+  margin: 0 auto;
+  padding: 0.3rem;
+`;
+
+function ExplorationSceneName() {
+  const { exploration, explorationScene } = useGlobalExploration([
+    "exploration",
+    "explorationScene"
+  ]);
+  const { title: exp } = exploration || { title: "" };
+  const { title: name } = explorationScene || { title: "" };
+  return (
+    <SceneName>
+      <Accent>{exp}</Accent> - {name}
+    </SceneName>
+  );
+}

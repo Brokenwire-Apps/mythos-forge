@@ -11,6 +11,7 @@ import {
   SlotInteraction,
   SlotInteractionData
 } from "utils/types";
+import { createPlayer } from "./explorations.player";
 
 type APIExploration = APIData<Exploration>;
 type APIExplorationScene = APIData<ExplorationScene>;
@@ -29,7 +30,9 @@ export const GlobalExploration = createState({
   /** Selected `slot` (canvas item) */
   activeSlotIndex: -1,
   /** Dialogue or text description of a selected on-canvas item */
-  sceneData: null as ActiveSceneData | null
+  sceneData: null as ActiveSceneData | null,
+  /** Active Player */
+  player: createPlayer()
 });
 
 export const explorationStoreKeys = Object.keys(
@@ -62,8 +65,13 @@ export function setGlobalSceneData(data: ActiveSceneData | null) {
 export function setGlobalExploration(exploration: APIExploration | null) {
   const { explorations: old } = GlobalExploration.getState();
   if (!exploration) {
-    GlobalExploration.multiple({ exploration: null, explorationScene: null });
-    return { exploration: null, explorations: old, explorationScene: null };
+    const defaults = {
+      exploration: null,
+      explorationScene: null,
+      sceneData: null
+    };
+    GlobalExploration.multiple(defaults);
+    return defaults;
   }
 
   const updates = { exploration, ...updateListWithNewItems(exploration, old) };
@@ -76,7 +84,7 @@ export function addGlobalExplorations(explorations: APIExploration[]) {
   const state = GlobalExploration.getState();
   const { explorations: old, exploration } = state;
   const newExplorations = mergeLists(old, explorations);
-  const updates = replaceItemWithNewList(exploration, newExplorations);
+  const updates = replaceItemFromNewList(exploration, newExplorations);
   GlobalExploration.multiple(updates);
   return updates;
 }
@@ -107,7 +115,10 @@ export function nextGlobalExplorationScene() {
   const nextScene = explorationScene
     ? sceneTemps.find((s, i) => s.order === order + 1 || i === sceneIndex + 1)
     : last;
-  return GlobalExploration.explorationScene(nextScene || last);
+  return GlobalExploration.multiple({
+    explorationScene: nextScene || last,
+    sceneData: null
+  });
 }
 
 // Select previous scene or chapter in list
@@ -120,7 +131,10 @@ export function prevGlobalExplorationScene() {
   const prevScene = explorationScene
     ? sceneTemps.find((s, i) => s.order === order - 1 || i === sceneIndex - 1)
     : sceneTemps[0];
-  return GlobalExploration.explorationScene(prevScene || sceneTemps[0]);
+  return GlobalExploration.multiple({
+    explorationScene: prevScene || sceneTemps[0],
+    sceneData: null
+  });
 }
 
 function __updateOrGetScenes() {
@@ -150,7 +164,12 @@ export function setGlobalExplorations(explorations: APIExploration[]) {
     activeScene && scenes.length
       ? scenes.find((s) => s.id === activeScene.id) || fallback
       : fallback;
-  const updates = { explorations, exploration, explorationScene };
+  const updates = {
+    explorations,
+    exploration,
+    explorationScene,
+    sceneData: null
+  };
   GlobalExploration.multiple(updates);
   return updates;
 }
@@ -209,11 +228,11 @@ function updateListWithNewItems(
   const explorationScene = activeScene
     ? newScenes.find((s) => s.id === activeScene.id) || fallback
     : fallback;
-  return { explorations: newExplorations, explorationScene };
+  return { explorations: newExplorations, explorationScene, sceneData: null };
 }
 
 /** Replace active exploration and scene with equivalents from updated list */
-function replaceItemWithNewList(
+function replaceItemFromNewList(
   selected: APIExploration | null,
   explorations: APIExploration[]
 ) {

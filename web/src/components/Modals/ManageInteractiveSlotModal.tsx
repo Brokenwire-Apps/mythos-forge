@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { Suspense, lazy, useMemo, useState } from "react";
 import {
   MODAL,
   GlobalModal,
@@ -13,7 +13,6 @@ import {
 import { ErrorMessage } from "components/Common/Containers";
 import useGlobalExploration from "hooks/GlobalExploration";
 import { InteractiveSlot } from "utils/types";
-import CreateInteractiveSlotForm from "components/Form.CreateInteractiveSlot";
 import ModalDrawer from "./ModalDrawer";
 import { uploadFileToServer } from "api/loadUserData";
 import {
@@ -30,6 +29,9 @@ type ManageInteractiveSlotModalProps = {
   onClose?: () => void;
 };
 
+const CreateInteractiveSlotForm = lazy(
+  () => import("components/Form.CreateInteractiveSlot")
+);
 /** @modal Create/edit an `Interactive Slot` in a scene */
 export default function ManageInteractiveSlotModal(
   props: ManageInteractiveSlotModalProps
@@ -101,23 +103,23 @@ export default function ManageInteractiveSlotModal(
       slot.url = await uploadSprite(noteId);
     }
     newSlots[slotIndex] = slot;
-    return sendToAPI(newSlots, noteId);
+    return sendToAPI(newSlots);
   };
 
-  const sendToAPI = async (slots: InteractiveSlot[], noteId = -1) => {
+  const sendToAPI = async (slots: InteractiveSlot[]) => {
     if (!explorationScene) return err("No scene is selected!");
     const newScene = { ...explorationScene, [layer]: slots };
-    updateNotification("Saving Scene...", noteId);
+    updateNotification("Saving Scene...", 1);
     const forAPI = convertTemplateToAPIScene(newScene);
     const resp = await upsertExplorationScene(
       pruneExplorationSceneData(forAPI)
     );
-    if (typeof resp === "string") return err(resp as any, noteId);
+    if (typeof resp === "string") return err(resp as any, 1);
     const e = `Scene not saved: please check your entries.`;
-    if (!resp) return err(e, noteId);
+    if (!resp) return err(e, 1);
 
     // Notify
-    updateNotification("Scene saved!", noteId);
+    updateNotification("Scene saved!", 1);
     setGlobalExploration(resp);
     onClose();
   };
@@ -132,10 +134,12 @@ export default function ManageInteractiveSlotModal(
       confirmText={"Confirm"}
       onConfirm={submit}
     >
-      <CreateInteractiveSlotForm
-        onChange={setFormData}
-        onSlotImageFile={setSlotImage}
-      />
+      <Suspense fallback={<p>Loading form...</p>}>
+        <CreateInteractiveSlotForm
+          onChange={setFormData}
+          onSlotImageFile={setSlotImage}
+        />
+      </Suspense>
       {error && <ErrorMessage>{error}</ErrorMessage>}
 
       {editing && (

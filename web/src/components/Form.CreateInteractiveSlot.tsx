@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, lazy, useEffect, useMemo, useState } from "react";
 import { noOp, suppressEvent } from "../utils";
 import {
   Fieldset,
@@ -18,12 +18,14 @@ import {
   SlotInteractionData,
   explorationTemplateActions
 } from "utils/types";
-import { createInteractiveSlot } from "routes/ExplorationBuilder.Helpers";
+import {
+  createInteractiveSlot,
+  newActionData
+} from "routes/ExplorationBuilder.Helpers";
 import { GlobalExploration, GlobalModal, MODAL } from "state";
 import { RoundButton } from "./Forms/Button";
 import MatIcon from "./Common/MatIcon";
 import { Accent, Selectable } from "./Common/Containers";
-import CreateInteractiveSlotDataForm from "./Form.CreateInteractiveSlotData";
 import AWSImagesList from "./AWSImagesList";
 
 export type CreateInteractiveSlotProps = {
@@ -32,6 +34,9 @@ export type CreateInteractiveSlotProps = {
   onSlotImageFile?: (data?: File) => void;
 };
 
+const CreateInteractiveSlotDataForm = lazy(
+  () => import("./Form.CreateInteractiveSlotData")
+);
 const { CLICK, DRAG_HZ, DRAG_VT } = ExplorationTemplateEvent;
 const emptyForm = (): InteractiveSlot => {
   const {
@@ -63,11 +68,8 @@ const CreateInteractiveSlotForm = (props: CreateInteractiveSlotProps) => {
   const imageAction = editing ? "Change" : "Upload";
   const [data, setData] = useState(emptyForm());
   const [interactionData, event, action] = useMemo(() => {
-    const { event, action: a, data: d } = data.interaction || {};
-    if (event === CLICK) return [d, CLICK, a];
-    if (event === DRAG_HZ) return [d, DRAG_HZ, a];
-    if (event === DRAG_VT) return [d, DRAG_VT, a];
-    return [d, undefined, undefined];
+    const { event: ev, action: a, data: d } = data.interaction || {};
+    return [d || ({} as SlotInteractionData), ev, a];
   }, [data]);
   const updateData = (d: typeof data) => {
     setData((p) => ({ ...p, ...d }));
@@ -97,21 +99,16 @@ const CreateInteractiveSlotForm = (props: CreateInteractiveSlotProps) => {
   const updateInteractionData = (iData?: SlotInteractionData) => {
     updateInteraction({ ...data.interaction, data: iData });
   };
-  const changeClickAction = (clickAction: SlotAction) => {
-    if (!clickAction) return updateInteraction({});
-    updateInteraction({
-      action: clickAction,
-      event: CLICK,
-      data: clickAction === action ? interactionData : {}
-    });
+  const changeClickAction = (newClick: SlotAction) => {
+    if (!newClick) return updateInteraction({});
+    const next =
+      newClick === action ? interactionData : newActionData(newClick);
+    updateInteraction({ action: newClick, event: CLICK, data: next });
   };
-  const changeDragAction = (dragAction: SlotAction) => {
-    if (!dragAction) return updateInteraction({});
-    updateInteraction({
-      action: dragAction,
-      event: DRAG_HZ,
-      data: dragAction === action ? interactionData : {}
-    });
+  const changeDragAction = (newDrag: SlotAction) => {
+    if (!newDrag) return updateInteraction({});
+    const next = newDrag === action ? interactionData : newActionData(newDrag);
+    updateInteraction({ action: newDrag, event: DRAG_HZ, data: next });
   };
   const updateLock = (d: Partial<InteractiveSlot["lock"]>) => {
     const { lock = {} } = data;
@@ -279,12 +276,15 @@ const CreateInteractiveSlotForm = (props: CreateInteractiveSlotProps) => {
 
           {/* interactions */}
           {event && action && (
-            <CreateInteractiveSlotDataForm
-              event={event}
-              action={action}
-              value={interactionData}
-              onChange={updateInteractionData}
-            />
+            <Suspense fallback={<p>Loading Form</p>}>
+              <CreateInteractiveSlotDataForm
+                event={event}
+                action={action}
+                value={interactionData}
+                onChange={updateInteractionData}
+                onRemove={() => updateInteraction({})}
+              />
+            </Suspense>
           )}
 
           <hr className="transparent" />

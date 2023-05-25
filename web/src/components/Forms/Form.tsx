@@ -100,7 +100,10 @@ export const RadioLabel = styled(Label)`
     width: initial;
   }
 `;
-export const Legend = styled.legend.attrs({ className: "h3" })`
+const legendAttrs = (p: any) => ({
+  className: `${p.className || ""} h3`.trim()
+});
+export const Legend = styled.legend.attrs(legendAttrs)`
   color: ${({ theme }) => theme.colors.secondary};
   font-size: larger;
   font-weight: 600;

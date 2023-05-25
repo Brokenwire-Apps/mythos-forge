@@ -214,11 +214,12 @@ export type ExplorationCanvasConfig = {
 /** @client  */
 export enum SlotAction {
   NONE = "none", // Default no-op action
-  CHOOSE = "Choose", // show choice dialog
+  CHOICE = "Choice", // show choice dialog
+  CHECK_ATTR = "Check Attribute", // check attribute
   HIT_PLAYER = "Hit Player", // hit player with damage
   HIT_TARGET = "Hit Target", // hit selected target with damage
   NAV_SCENE = "Change Scene", // change room
-  NAV_LOCATION = "Change Location", // link to another Exploration
+  NAV_EXPLORATION = "Change Location", // link to another Exploration
   SHOW_TEXT = "Show Text" // show soem text description
 }
 export const explorationTemplateActions = Object.values(SlotAction).filter(
@@ -279,18 +280,22 @@ export type InteractiveSlot = {
   lock?: { position?: boolean; size?: boolean };
 } & InteractiveSlotCore;
 
-export type SlotInteraction = {
+export type SlotInteractionCore = {
+  action?: SlotAction;
   /** Interaction Event data */
   data?: SlotInteractionData;
+};
+
+export type SlotInteraction = SlotInteractionCore & {
   /** Interaction Event types */
   event?: ExplorationTemplateEvent;
-  action?: SlotAction;
 };
-export type SlotInteractionChoice = {
+
+export type SlotInteractionChoice = SlotInteractionCore & {
+  /** Interaction description or other onscreen text */
   text: string;
-  action: SlotAction;
-  data?: SlotInteractionData;
 };
+
 export type SlotInteractionData = {
   /** Any text to show when interaction begins (attributed to slot-origin) */
   text?: string;
@@ -300,26 +305,11 @@ export type SlotInteractionData = {
   choices?: SlotInteractionChoice[];
 };
 
-/**
- * @client An `Exploration Template Scene Slot` describes a single slot in an `Exploration Template`.
- * It defines what data is required to fill the slot, which will in turn render an asset.
- */
-export enum ExplorationTemplateSceneSlotType {
-  /** A background image slot */
-  BACKGROUND = "Background",
-  /** A foreground image slot */
-  FOREGROUND = "Foreground",
-  /** A character image slot */
-  CHARACTER = "Character",
-  /** A text slot */
-  TEXT = "Text",
-  /** A choice slot */
-  CHOICE = "Choice"
-}
-
-export const explorationTemplateSceneSlotTypes = Object.values(
-  ExplorationTemplateSceneSlotType
-);
+export type SlotHandlerOpts = {
+  action: SlotAction;
+  data?: SlotInteractionData;
+  name: string;
+};
 
 /** Content tagged to a `PopulationGroup` */
 export type GroupRelation = {

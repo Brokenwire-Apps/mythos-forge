@@ -7,7 +7,6 @@ import { ExplorationSceneTemplate, UserRole } from "utils/types";
 import {
   GlobalExploration,
   MODAL,
-  addNotification,
   clearGlobalModal,
   convertTemplateToAPIScene,
   setGlobalExploration,
@@ -69,9 +68,7 @@ const ExplorationBuilderRoute = () => {
   }, [active]);
   const [formData, setFormData] = useState<ExplorationSceneTemplate>();
   const [editorAutosave, setEditorAutosave] = useState(true);
-  const err = (msg: string, noteId?: number) => {
-    updateAsError(msg, noteId);
-  };
+  const err = (msg: string, noteId?: number) => updateAsError(msg, noteId);
   const saveExplorationScene = async (sceneData?: ExplorationSceneTemplate) => {
     const { explorationScene } = GlobalExploration.getState();
     if (!sceneData) return err("No data to save!");
@@ -79,17 +76,17 @@ const ExplorationBuilderRoute = () => {
 
     err("");
     const updatedScene = { ...explorationScene, ...sceneData };
-    const noteId = addNotification("Saving Scene...", true);
+    updateNotification("Saving Scene...", 1, true);
     const forAPI = convertTemplateToAPIScene(updatedScene);
     const resp = await upsertExplorationScene(
       pruneExplorationSceneData(forAPI)
     );
-    if (typeof resp === "string") return err(resp as any, noteId);
+    if (typeof resp === "string") return err(resp as string, 1);
     const e = `Scene not saved: please check your entries.`;
-    if (!resp) return err(e, noteId);
+    if (!resp) return err(e, 1);
 
     // Notify
-    updateNotification("Scene saved!", noteId);
+    updateNotification("Scene saved!", 1);
     setGlobalExploration(resp);
   };
   const onEditTitle: FocusEventHandler<HTMLSpanElement> = async (e) => {

@@ -2,7 +2,7 @@
   "name": "mythos-forge-web",
   "description": "Frontend for MythosForge",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "cd .. && make dev",
@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.7.14",
+    "@dice-roller/rpg-dice-roller": "^5.3.2",
     "@grammarly/editor-sdk-react": "^2.3.17",
     "@jackcom/raphsducks": "^2.0.6",
     "@pixi/filter-glow": "^5.2.1",
