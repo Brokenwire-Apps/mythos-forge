@@ -41,14 +41,6 @@ resource "aws_security_group" "mf-api-sg" {
     cidr_blocks      = ["${data.aws_vpc.default.cidr_block}"]
   }
 
-  // To Allow Port 443 Transport
-  ingress {
-    from_port   = 443
-    protocol    = "tcp"
-    to_port     = 443
-    cidr_blocks      = ["${data.aws_vpc.default.cidr_block}"]
-  }
-
   egress {
     from_port   = 0
     to_port     = 0
@@ -108,9 +100,9 @@ resource "aws_instance" "mf-api-instance" {
       "echo \"DB_URL=postgres://${var.db_username}:${var.db_password}@${aws_db_instance.mf_database.address}\" >> .env",
       "sudo npm install",
       "sudo npm run prisma-sync",
-      "sudo pm2 start /home/ubuntu/mythosforge/server.js --name mythosforge-api",
-      "sudo iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 443 -j REDIRECT --to-port 80",
+      "sudo iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 443 -j REDIRECT --to-port 4001",
       "sudo iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 80 -j REDIRECT --to-port 4001",
+      "sudo pm2 start /home/ubuntu/mythosforge/server.js --name mythosforge-api",
       "sudo ufw allow 4001",
       "sudo ufw allow 443",
       "sudo ufw allow ssh",
