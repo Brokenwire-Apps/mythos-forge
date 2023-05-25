@@ -4,16 +4,10 @@ import {
   convertAPISceneToTemplate,
   setGlobalExplorationScene,
   setGlobalSceneData,
-  updateAsError,
-  updateNotification
+  updateAsError
 } from "state";
 import { noOp } from "utils";
-import {
-  InteractiveSlot,
-  SlotAction,
-  SlotHandlerOpts,
-  SlotInteractionData
-} from "utils/types";
+import { InteractiveSlot, SlotAction, SlotHandlerOpts } from "utils/types";
 import { PlayerAttribute, rollForTarget } from "state/explorations.player";
 
 type UpdateLayerOpts = {

@@ -1,4 +1,4 @@
-import { FocusEventHandler, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { MatIcon } from "components/Common/MatIcon";
 import { Paths, insertId } from "routes";
@@ -17,8 +17,7 @@ import {
 } from "state";
 import PageLayout from "components/Common/PageLayout";
 import { useNavigate, useParams } from "react-router";
-import { loadExploration, saveAndUpdateExploration } from "api/loadUserData";
-import ModalDrawer from "components/Modals/ModalDrawer";
+import { loadExploration } from "api/loadUserData";
 import { useGlobalUser } from "hooks/GlobalUser";
 import useGlobalExploration from "hooks/GlobalExploration";
 import {
@@ -26,9 +25,6 @@ import {
   upsertExplorationScene
 } from "graphql/requests/explorations.graphql";
 import { RoundButton } from "components/Forms/Button";
-import ExplorationScenesList from "components/List.ExplorationScenes";
-import BuilderToolbar from "components/BuilderToolbar";
-import SceneBuilderHelp from "components/SceneBuilderHelp";
 import { PixiCanvas } from "components/PixiCanvas";
 import { Accent, Card, CardTitle } from "components/Common/Containers";
 

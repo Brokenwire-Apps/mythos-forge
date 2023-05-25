@@ -19,7 +19,7 @@ import {
 import { GlobalExploration } from "state";
 import { Accent, Selectable } from "./Common/Containers";
 import MatIcon from "./Common/MatIcon";
-import Button, { RoundButton, WideButton } from "./Forms/Button";
+import Button from "./Forms/Button";
 import { Fragment, useMemo, useState } from "react";
 import styled from "styled-components";
 import {
