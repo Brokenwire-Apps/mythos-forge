@@ -63,10 +63,11 @@ const ExplorationItem = ({
     suppressEvent(e);
     onSelect(exploration);
   };
+  const backgroundImage = `url(${exploration.image || defaultBG})`;
 
   return (
     <LinkContainer
-      style={{ backgroundImage: `url(${defaultBG})` }}
+      style={{ backgroundImage }}
       to={viewURL}
       onClick={select}
       permissions={permissions}

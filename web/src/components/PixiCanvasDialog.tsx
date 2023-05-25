@@ -1,7 +1,7 @@
 import styled, { css } from "styled-components";
 import { ActiveSceneData, setGlobalSceneData } from "state";
 import ListView from "./Common/ListView";
-import { SlotInteractionChoice } from "utils/types";
+import { SlotAction, SlotInteractionChoice } from "utils/types";
 import MatIcon from "./Common/MatIcon";
 import { RoundButton } from "./Forms/Button";
 import { Blockquote, Selectable } from "./Common/Containers";
@@ -54,7 +54,11 @@ const PixiCanvasDialog = ({ data, name = "" }: ActiveSceneData) => {
   const { choices, text } = data;
   const clearGlobalSceneData = () => setGlobalSceneData(null);
   const choose = (choice: SlotInteractionChoice) => {
-    handleSlotInteraction({ name, action: choice.action, data: choice.data });
+    handleSlotInteraction({
+      name,
+      action: choice.action || SlotAction.NONE,
+      data: choice.data
+    });
   };
 
   if (!data) return null;

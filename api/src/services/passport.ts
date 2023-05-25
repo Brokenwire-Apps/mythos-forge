@@ -8,7 +8,7 @@ import GoogleStrategy from "passport-google-oidc";
 import { CtxUser } from "../graphql/context";
 import { findFirstUser, upsertUser } from "../services/users.service";
 import configureAuthRoutes from "../routes/auth.router";
-import { env } from "../constants";
+import { APP_UI, env } from "../constants";
 
 type PassportUser = {
   // The provider with which the user authenticated (facebook, twitter, etc.).
@@ -36,7 +36,6 @@ export default passport;
 
 const clientID = process.env.GOOGLE_CLIENT_ID;
 const clientSecret = process.env.GOOGLE_CLIENT_SK;
-const APP_UI = process.env.APP_UI;
 const callbackURL = `${APP_UI}/oauth2/redirect/google`;
 const maxAge = 86400000; // 24 hours
 const toCtxUser = (u: User): CtxUser => ({

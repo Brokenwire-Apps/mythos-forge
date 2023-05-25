@@ -17,7 +17,13 @@ import { listTimelines } from "graphql/requests/timelines.graphql";
 import { getBook, getChapter, listBooks } from "graphql/requests/books.graphql";
 import { API_FILES_LIST_ROUTE, API_FILE_UPLOAD_ROUTE, API_PROMPT } from "utils";
 import { listCharacters } from "graphql/requests/characters.graphql";
-import { APIData, Chapter, Scene, Timeline, FileUploadCategory } from "utils/types";
+import {
+  APIData,
+  Chapter,
+  Scene,
+  Timeline,
+  FileUploadCategory
+} from "utils/types";
 import { MicroUser } from "graphql/requests/users.graphql";
 import { insertCategory } from "routes";
 import fetchRaw from "../graphql/fetch-raw";
@@ -234,12 +240,12 @@ export async function listFiles(category: FileUploadCategory) {
 export async function saveAndUpdateExploration(
   update: Partial<UpsertExplorationInput>
 ) {
-  const noteId = addNotification("Saving Exploration ...", true);
+  updateNotification("Saving Exploration ...", 1);
   const resp = await upsertExploration(pruneExplorationData(update));
-  if (typeof resp === "string") updateAsError(resp, noteId);
+  if (typeof resp === "string") updateAsError(resp, 1);
   else if (resp) {
     setGlobalExploration(resp);
-    updateNotification("Exploration updated!", noteId, false);
+    updateNotification("Exploration updated!", 1, false);
   }
   return resp;
 }

@@ -57,7 +57,7 @@ export function suppressEvent(e?: React.MouseEvent | React.FormEvent) {
   if (!e?.preventDefault) return;
   e.preventDefault();
   e.stopPropagation();
-  if (e.nativeEvent) e.nativeEvent.stopImmediatePropagation();
+  if (e.nativeEvent) e.nativeEvent?.stopImmediatePropagation?.();
 }
 
 /** Shortens string to `XXXX...XXXX`; padding determined by optional `pad` parameter */

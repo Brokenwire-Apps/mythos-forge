@@ -10,7 +10,8 @@ import {
   MODAL,
   addNotification,
   clearGlobalModal,
-  updateAsError
+  updateAsError,
+  updateNotification
 } from "state";
 import { useGlobalUser } from "hooks/GlobalUser";
 import { useGlobalWorld } from "hooks/GlobalWorld";
@@ -81,15 +82,15 @@ export default function ManageExplorationModal(props: ModalProps) {
     if (!imgData) return undefined;
     if (!userId || userId === -1 || !imgData) return undefined;
 
-    const noteId = addNotification("Uploading cover image...", true);
+    updateNotification("Uploading cover image...", 1);
     const imageRes = await uploadFileToServer(imgData, "explorations");
     if (typeof imageRes === "string") {
-      updateAsError(imageRes, noteId);
+      updateAsError(imageRes, 1);
       return undefined;
     }
 
     if (!imageRes.fileURL) {
-      updateAsError("Cover image upload failed", noteId);
+      updateAsError("Cover image upload failed", 1);
       return undefined;
     }
 

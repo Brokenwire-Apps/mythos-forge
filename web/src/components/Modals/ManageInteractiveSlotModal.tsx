@@ -101,23 +101,23 @@ export default function ManageInteractiveSlotModal(
       slot.url = await uploadSprite(noteId);
     }
     newSlots[slotIndex] = slot;
-    return sendToAPI(newSlots, noteId);
+    return sendToAPI(newSlots);
   };
 
-  const sendToAPI = async (slots: InteractiveSlot[], noteId = -1) => {
+  const sendToAPI = async (slots: InteractiveSlot[]) => {
     if (!explorationScene) return err("No scene is selected!");
     const newScene = { ...explorationScene, [layer]: slots };
-    updateNotification("Saving Scene...", noteId);
+    updateNotification("Saving Scene...", 1);
     const forAPI = convertTemplateToAPIScene(newScene);
     const resp = await upsertExplorationScene(
       pruneExplorationSceneData(forAPI)
     );
-    if (typeof resp === "string") return err(resp as any, noteId);
+    if (typeof resp === "string") return err(resp as any, 1);
     const e = `Scene not saved: please check your entries.`;
-    if (!resp) return err(e, noteId);
+    if (!resp) return err(e, 1);
 
     // Notify
-    updateNotification("Scene saved!", noteId);
+    updateNotification("Scene saved!", 1);
     setGlobalExploration(resp);
     onClose();
   };
