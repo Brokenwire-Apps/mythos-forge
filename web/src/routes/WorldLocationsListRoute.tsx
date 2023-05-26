@@ -111,7 +111,6 @@ const WorldLocationsListRoute = () => {
     >
       <PageGrid className="fill" gap="0.6rem">
         <section>
-          <ExplorationsList showControls explorations={localExplorations} />
           {ChildWorlds.length > 0 && (
             <>
               <WorldsList worlds={ChildWorlds} focusedWorld={focusedWorld} />
@@ -125,6 +124,8 @@ const WorldLocationsListRoute = () => {
             focusedLocation={focusedLocation}
             worldLocations={worldLocations}
           />
+          <hr className="transparent" />
+          <ExplorationsList explorations={localExplorations} />
         </section>
 
         <aside>

@@ -1,7 +1,6 @@
-import { ChangeEvent, useMemo } from "react";
+import { ChangeEvent } from "react";
 import { noOp } from "../utils";
 import {
-  Fieldset,
   Form,
   FormRow,
   Hint,
@@ -10,18 +9,14 @@ import {
   Legend,
   RadioInput,
   RadioLabel,
-  Select,
   Textarea
 } from "components/Forms/Form";
 import { UpsertExplorationInput } from "graphql/requests/explorations.graphql";
 import SelectParentWorld from "./SelectParentWorld";
 import SelectParentLocation from "./SelectParentLocation";
 import { WritingPrompt } from "./WritingPrompt";
-import {
-  ExplorationCanvasConfig,
-  ExplorationCanvasType,
-  explorationCanvasTypes
-} from "utils/types";
+import { Accent } from "./Common/Containers";
+import ImageUploader from "./Forms/ImageUploader";
 
 export type CreateExplorationProps = {
   data?: Partial<UpsertExplorationInput>;
@@ -42,52 +37,48 @@ const CreateExplorationForm = (props: CreateExplorationProps) => {
   const updateTitle = (e: ChangeEvent<HTMLInputElement>) => {
     onChange({ ...data, title: e.target.value });
   };
-  const updateImage = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const [file] = e.target.files || [];
-    if (file) onCoverImage(file);
-  };
 
   return (
     <Form>
-      <Legend>
-        {data?.id ? (
-          `Edit ${data.title}`
-        ) : (
-          <>
-            New <span className="accent--text">Exploration</span>
-          </>
-        )}
-      </Legend>
-      <Hint>
-        Describe and configure your <b>Exploration</b>.
-      </Hint>
-
       {/* Name */}
-      <FormRow columns="repeat(2, 1fr)">
-        <Label direction="column">
-          <span className="label required">
-            Exploration <span className="accent--text">Title</span>
-          </span>
-          <Input
-            placeholder="The Frigid Sands of North Omarai"
-            type="text"
-            value={data?.title || ""}
-            onChange={updateTitle}
-          />
-        </Label>
-        <Label direction="column">
-          <span className="label">
-            Cover <span className="accent--text">Image</span>
-          </span>
-          <Input
-            type="file"
-            accept="image/*"
-            onChange={updateImage}
-            style={{ padding: "0 0.5rem" }}
-          />
-        </Label>
-      </FormRow>
+      <Label direction="column">
+        <span className="label required">
+          Exploration <span className="accent--text">Title</span>
+        </span>
+        <Input
+          placeholder="The Frigid Sands of North Omarai"
+          type="text"
+          value={data?.title || ""}
+          onChange={updateTitle}
+        />
+      </Label>
       <Hint>Enter your exciting (or working) title here.</Hint>
+      <hr />
+
+      {/* Description */}
+      <FormRow columns="3fr 1fr">
+        <Label direction="column">
+          <span className="label required">Summary</span>
+          <Textarea
+            rows={300}
+            style={{ width: "100%" }}
+            value={data?.description || ""}
+            onChange={({ target }) => updateDescr(target.value)}
+          />
+          {!data?.description && (
+            <WritingPrompt
+              additionalData={data}
+              buttonText="Get description ideas"
+              onPrompt={updateDescr}
+            />
+          )}
+        </Label>
+        <ImageUploader src={data?.image} onImageFile={onCoverImage} />
+      </FormRow>
+      <Hint>
+        <b>This is your publicly-visible summary</b>. You can enter prompts,
+        ideas, or leave this blank until the Exploration is made public.
+      </Hint>
       <hr />
 
       <FormRow columns="repeat(2,1fr)">
@@ -117,8 +108,7 @@ const CreateExplorationForm = (props: CreateExplorationProps) => {
           </Label>
         )}
       </FormRow>
-
-      <hr className="transparent" />
+      <hr />
 
       {/* Public/Private | Free/Paid */}
       <FormRow columns="repeat(2, 1fr)">
@@ -160,34 +150,20 @@ const CreateExplorationForm = (props: CreateExplorationProps) => {
           />
         </Label>
       </FormRow>
-      <Hint>
-        Select <b>Public</b> if you would like other users to access the
-        Exploration. Leave <b>price</b> blank (or enter <b>0</b>) to make this
-        Exploration free.
-      </Hint>
-
-      {/* Description */}
-      <Label direction="column">
-        <span className="label required">Summary</span>
-        <Textarea
-          rows={300}
-          style={{ width: "100%" }}
-          value={data?.description || ""}
-          onChange={({ target }) => updateDescr(target.value)}
-        />
-      </Label>
-      <Hint>
-        <b>This is your publicly-visible summary</b>. If the Exploration is
-        private, you can enter writing-prompts and ideas, or leave this blank.
-      </Hint>
-
-      {!data?.description && (
-        <WritingPrompt
-          additionalData={data}
-          buttonText="Get description ideas"
-          onPrompt={updateDescr}
-        />
+      {data?.public ? (
+        <Hint>
+          <b className="accent--text">Public:</b> Other users can access the{" "}
+          exploration
+        </Hint>
+      ) : (
+        <Hint>
+          <b className="accent--text">Private:</b> only you can see this{" "}
+          exploration
+        </Hint>
       )}
+      <Hint>
+        Leave <b>price</b> blank to keep this <Accent>Exploration</Accent> free.
+      </Hint>
     </Form>
   );
 };

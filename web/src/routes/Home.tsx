@@ -16,7 +16,7 @@ const Controls = styled(GridContainer)`
   align-self: stretch;
   grid-column-gap: ${({ gap }) => gap};
   height: -webkit-fill-available;
-  padding: 1rem 0;
+  padding: 0;
 `;
 const Control = styled(Link)<{ image: string }>`
   border-radius: 8px;
@@ -24,7 +24,7 @@ const Control = styled(Link)<{ image: string }>`
   border: ${({ theme }) =>
     `${theme.sizes.sm} solid ${theme.colors.semitransparent}`};
   font-size: 1.6rem;
-  height: 50vh;
+  height: 40vh;
   overflow: hidden;
   place-content: center;
   position: relative;
@@ -62,7 +62,10 @@ const Control = styled(Link)<{ image: string }>`
 const ControlText = styled.span`
   align-self: flex-end;
   background-color: ${({ theme }) => theme.colors.bgColor}aa;
-  font-weight: 300;
+  font-size: 1.6rem;
+  font-weight: 500;
+  height: 2.8rem;
+  line-height: 2.8rem;
   padding: 0 0.3rem;
   z-index: 2;
 `;
@@ -88,7 +91,11 @@ const Home = () => {
       description="A forge of myths and legends"
       breadcrumbs={[]}
     >
-      <Controls className="fill" columns={`repeat(${gridColumns},1fr)`} gap={gridGap}>
+      <Controls
+        className="fill"
+        columns={`repeat(${gridColumns},1fr)`}
+        gap={gridGap}
+      >
         {SECTIONS.map(({ data, src }) => (
           <Control
             className="flex"

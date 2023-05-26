@@ -11,6 +11,7 @@ import {
 } from "state";
 import { ErrorMessage } from "components/Common/Containers";
 import { useGlobalWorld } from "hooks/GlobalWorld";
+import { uploadCoverImage } from "api/loadUserData";
 
 /** Modal props */
 type ManageWorldModalProps = {
@@ -30,6 +31,7 @@ export default function ManageWorldModal(props: ManageWorldModalProps) {
   const { focusedWorld: data } = useGlobalWorld(["focusedWorld"]);
   const [formData, setFormData] = useState(emptyForm());
   const [error, setLocalError] = useState("");
+  const [imgData, setImgData] = useState<File | undefined | null>(undefined);
   const setError = (e: string, noteId?: number) => {
     setLocalError(e);
     updateAsError(e, noteId);
@@ -44,17 +46,19 @@ export default function ManageWorldModal(props: ManageWorldModalProps) {
     // Create
     if (!formData.description) formData.description = "No description.";
     formData.public = formData.public || false;
+    const d = { ...formData };
+    if (imgData) d.image = await uploadCoverImage(imgData);
     setError("");
-    const noteId = addNotification("Saving world...");
-    const resp = await upsertWorld(formData);
-    if (typeof resp === "string") return setError(resp);
+    updateNotification("Saving world...", 1, true);
+    const resp = await upsertWorld(d);
+    if (typeof resp === "string") return setError(resp, 1);
 
     // Notify
     if (resp) {
-      updateNotification("World updated!", noteId);
+      updateNotification("World updated!", 1);
       updateWorlds([resp]);
       onClose();
-    } else setError("Did not save world: please check your entries.");
+    } else setError("Did not save world: please check your entries.", 1);
   };
 
   return (
@@ -66,7 +70,7 @@ export default function ManageWorldModal(props: ManageWorldModalProps) {
       confirmText={data?.id ? "Update" : "Create"}
       onConfirm={submit}
     >
-      <CreateWorldForm onChange={setFormData} />
+      <CreateWorldForm onChange={setFormData} onImageFile={setImgData} />
       {error && <ErrorMessage>{error}</ErrorMessage>}
     </Modal>
   );

@@ -6,8 +6,6 @@ import {
 import { useEffect, useState } from "react";
 import Modal from "./Modal";
 import {
-  GlobalCharacter,
-  GlobalWorld,
   addNotification,
   clearGlobalModal,
   updateAsError,
@@ -16,7 +14,7 @@ import {
 } from "state";
 import { ErrorMessage } from "components/Common/Containers";
 import { useGlobalCharacter } from "hooks/GlobalCharacter";
-import { APIData, Character } from "utils/types";
+import { uploadCoverImage } from "api/loadUserData";
 
 /** Modal props */
 type ManageCharacterModalProps = {
@@ -31,6 +29,7 @@ export default function ManageCharacterModal(props: ManageCharacterModalProps) {
   const { focusedCharacter: data } = useGlobalCharacter(["focusedCharacter"]);
   const [formData, setFormData] = useState<Partial<CreateCharacterData>>({});
   const [error, setError] = useState("");
+  const [imgData, setImgData] = useState<File | undefined | null>(undefined);
   const showError = (msg: string, noteId = -1) => {
     setError(msg);
     updateAsError(msg, noteId);
@@ -44,17 +43,20 @@ export default function ManageCharacterModal(props: ManageCharacterModalProps) {
     // Create
     setError("");
     if (!formData.description) formData.description = "No description.";
-    const noteId = addNotification("Saving character...");
-    const resp = await upsertCharacter(formData);
+    const d = { ...formData };
+    if (imgData) d.image = await uploadCoverImage(imgData);
+
+    updateNotification("Saving character...", 1, true);
+    const resp = await upsertCharacter(d);
     if (typeof resp === "string") return setError(resp);
     else if (resp) {
       // Notify
-      updateNotification("Character saved!", noteId);
+      updateNotification("Character saved!", 1);
       updateCharacters([resp]);
       onClose();
     } else {
       const e = "Did not create character: please check your entries.";
-      showError(e, noteId);
+      showError(e, 1);
     }
   };
 
@@ -68,13 +70,17 @@ export default function ManageCharacterModal(props: ManageCharacterModalProps) {
   return (
     <Modal
       open={open}
-      title={data?.id ? "Edit Character" : "Create Character"}
+      title={`${
+        data?.id ? "Edit" : "New"
+      } <b class="accent--text">Character</b>`}
       cancelText="Cancel"
       confirmText={data?.id ? "Update" : "Create"}
       onClose={onClose}
       onConfirm={submit}
     >
-      {open && <CreateCharacterForm onChange={setFormData} />}
+      {open && (
+        <CreateCharacterForm onChange={setFormData} onImageFile={setImgData} />
+      )}
       {error && <ErrorMessage>{error}</ErrorMessage>}
     </Modal>
   );

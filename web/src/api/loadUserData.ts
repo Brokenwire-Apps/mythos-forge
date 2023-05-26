@@ -259,6 +259,25 @@ type B64ImageOpts = {
   file: string;
 };
 
+export async function uploadCoverImage(imgData?: File | null) {
+  const { id: userId = -1 } = GlobalUser.getState();
+  if (userId === -1 || !imgData) return undefined;
+
+  updateNotification("Uploading image...", 1);
+  const imageRes = await uploadFileToServer(imgData, "books");
+  if (typeof imageRes === "string") {
+    updateAsError(imageRes, 1);
+    return undefined;
+  }
+
+  if (!imageRes.fileURL) {
+    updateAsError("Image upload failed", 1);
+    return undefined;
+  }
+
+  return imageRes.fileURL;
+}
+
 /** Send a file to AWS via the server */
 export async function uploadFileToServer(
   file: File | null,

@@ -1,18 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
 import { UpsertExplorationInput } from "graphql/requests/explorations.graphql";
-import { saveAndUpdateExploration, uploadFileToServer } from "api/loadUserData";
+import { saveAndUpdateExploration, uploadCoverImage } from "api/loadUserData";
 import {
   GlobalExploration,
   GlobalLibrary,
   GlobalModal,
   GlobalUser,
   GlobalWorld,
+  GlobalWorldInstanceKey,
   MODAL,
   clearGlobalModal,
-  updateAsError,
-  updateNotification
+  updateAsError
 } from "state";
-import { useGlobalUser } from "hooks/GlobalUser";
 import { useGlobalWorld } from "hooks/GlobalWorld";
 import { ErrorMessage } from "components/Common/Containers";
 import { createExplorationTemplate } from "routes/ExplorationBuilder.Helpers";
@@ -57,16 +56,16 @@ const initialFormData = (): Partial<UpsertExplorationInput> => {
   return $form;
 };
 
+const wKeys: GlobalWorldInstanceKey[] = ["focusedWorld", "focusedLocation"];
+
 /** Specialized Modal for creating/editing a `Book` */
 export default function ManageExplorationModal(props: ModalProps) {
   const { open, onClose = clearGlobalModal } = props;
   const [formData, setFormData] = useState(initialFormData());
   const { active } = useGlobalModal();
-  const { id: userId } = useGlobalUser(["id"]);
-  const { focusedWorld, focusedLocation } = useGlobalWorld([
-    "focusedWorld",
-    "focusedLocation"
-  ]);
+  const { focusedWorld, focusedLocation } = useGlobalWorld(wKeys);
+  const editing = active === MODAL.MANAGE_EXPLORATION;
+  const action = editing ? "Edit" : "Create";
   const locationName = useMemo(
     () => (focusedLocation || focusedWorld)?.name || "a mystery location",
     [focusedWorld, focusedLocation]
@@ -76,24 +75,6 @@ export default function ManageExplorationModal(props: ModalProps) {
   const err = (msg: string, noteId?: number) => {
     setError(msg);
     if (msg) updateAsError(msg, noteId);
-  };
-  const uploadCoverImage = async () => {
-    if (!imgData) return undefined;
-    if (!userId || userId === -1 || !imgData) return undefined;
-
-    updateNotification("Uploading cover image...", 1);
-    const imageRes = await uploadFileToServer(imgData, "explorations");
-    if (typeof imageRes === "string") {
-      updateAsError(imageRes, 1);
-      return undefined;
-    }
-
-    if (!imageRes.fileURL) {
-      updateAsError("Cover image upload failed", 1);
-      return undefined;
-    }
-
-    return imageRes.fileURL;
   };
   const close = () => {
     GlobalLibrary.focusedBook(null);
@@ -106,19 +87,17 @@ export default function ManageExplorationModal(props: ModalProps) {
 
     // Create
     if (!formData.description) {
-      formData.description = `Explore ${locationName} genre.`;
+      formData.description = `Explore ${locationName}.`;
     }
     err("");
 
     const d = { ...formData };
-    if (imgData) d.image = await uploadCoverImage();
+    if (imgData) d.image = await uploadCoverImage(imgData);
     const resp = await saveAndUpdateExploration(d);
     if (!resp) return err("Error saving data: please check your entries.");
     // exit
     close();
   };
-  const editing = active === MODAL.MANAGE_EXPLORATION;
-  const action = editing ? "Edit" : "Create";
 
   useEffect(() => {
     return () => {

@@ -23,6 +23,7 @@ export const WritingPrompt = (props: WritingPromptProps) => {
   return (
     <ButtonWithIcon
       type="button"
+      variant="outlined"
       onClick={getSummaryIdea}
       icon="tips_and_updates"
       size="lg"

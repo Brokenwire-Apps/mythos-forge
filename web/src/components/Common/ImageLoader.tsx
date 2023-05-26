@@ -1,15 +1,19 @@
 import { ComponentPropsWithRef, useEffect, useState } from "react";
 import styled from "styled-components";
+import MatIcon from "./MatIcon";
 
 type ImageLoaderProps = {
   src?: string;
+  border?: boolean;
   icon?: boolean;
   round?: boolean;
   fallbackIcon?: string;
 } & ComponentPropsWithRef<"img">;
 
-const Img = styled.img<{ round?: boolean }>`
-  border-radius: ${({ round }) => (round ? "50%" : "0")};
+const Img = styled.img<{ round?: boolean; border?: boolean }>`
+  border: ${({ border }) => (border ? "4px solid" : "none")};
+  border-color: ${({ theme }) => theme.colors.semitransparent};
+  border-radius: ${({ round }) => (round ? "50%" : "4px")};
   flex-shrink: 0;
 `;
 
@@ -18,9 +22,11 @@ const ImageLoader = styled((props: ImageLoaderProps) => {
   const {
     src,
     icon = false,
+    border = false,
     className = "",
     round = false,
     fallbackIcon = "image",
+    style,
     ...rest
   } = props;
   const cName = `scale-in ${className} ${round ? "round" : ""}`.trim();
@@ -53,13 +59,20 @@ const ImageLoader = styled((props: ImageLoaderProps) => {
     img.src = src;
   }, [src]);
 
-  if (!loaded) return <span className="material-icons">{fallbackIcon}</span>;
-  if (err) return <span className="material-icons">close</span>;
   if (loading) return <span className="spinner--before" />;
-  if (icon) return <span className="material-icons">check_circle</span>;
+  if (!loaded) return <MatIcon style={style} icon={fallbackIcon} />;
+  if (err) return <MatIcon style={style} icon="close" />;
+  if (icon) return <MatIcon style={style} icon="check_circle" />;
 
   return (
-    <Img round={round} className={cName} src={src} {...rest} alt={rest.alt} />
+    <Img
+      border={border}
+      round={round}
+      className={cName}
+      src={src}
+      {...rest}
+      alt={rest.alt}
+    />
   );
 })``;
 

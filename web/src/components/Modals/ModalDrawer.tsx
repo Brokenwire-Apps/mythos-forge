@@ -46,6 +46,7 @@ const ModalDrawer = (p: ModalDrawerProps) => {
 
   // Close on escape
   useEffect(() => {
+    if (!open) return noOp;
     // Trigger handler on ESC keypress
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -54,9 +55,9 @@ const ModalDrawer = (p: ModalDrawerProps) => {
         onClose();
       }
     };
-    document.addEventListener("keydown", handleEsc);
-    return () => document.removeEventListener("keydown", handleEsc);
-  }, []);
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, [open]);
 
   if (!open) return <></>;
 

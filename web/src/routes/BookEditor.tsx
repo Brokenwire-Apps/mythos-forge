@@ -169,7 +169,6 @@ const BooksEditorRoute = () => {
         <TinyMCE
           height={height * 0.78}
           value={draft}
-          inline
           autosave={editorAutosave}
           onChange={updateText}
           triggerSave={saveScene}

@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { noOp } from "../utils";
 import { Climate, LocationType, Richness } from "../utils/types";
 import {
@@ -17,15 +17,15 @@ import {
 import { CreateLocationData } from "graphql/requests/worlds.graphql";
 import { GlobalWorld } from "state";
 import { Accent } from "./Common/Containers";
-import { getAndShowPrompt } from "api/loadUserData";
-import { buildDescriptionPrompt } from "utils/prompt-builder";
-import { ButtonWithIcon } from "./Forms/Button";
 import { useGlobalWorld } from "hooks/GlobalWorld";
 import SelectParentLocation from "./SelectParentLocation";
 import SelectParentWorld from "./SelectParentWorld";
+import { WritingPrompt } from "./WritingPrompt";
+import ImageUploader from "./Forms/ImageUploader";
 
 export type CreateLocationProps = {
   onChange?: (data: Partial<CreateLocationData>) => void;
+  onImageFile?: (d?: File) => void;
 };
 
 /** `Climates` list */
@@ -68,7 +68,7 @@ const initialFormData = () => {
 
 /** Create or edit a `World` */
 const CreateLocationForm = (props: CreateLocationProps) => {
-  const { onChange = noOp } = props;
+  const { onChange = noOp, onImageFile = noOp } = props;
   const { worldLocations = [] } = useGlobalWorld(["worldLocations"]);
   const [data, setFormData] = useState(initialFormData());
   const update = (updates: Partial<CreateLocationData>) => {
@@ -82,20 +82,11 @@ const CreateLocationForm = (props: CreateLocationProps) => {
   const onLocationType = (e: LocationType) => update({ ...data, type: e });
   const onTitle = ({ target }: ChangeEvent<HTMLInputElement>) =>
     update({ ...data, name: target.value });
-
   const onParent = (plid?: number | null) => {
     const pl = worldLocations.find((w) => w.id === plid);
     if (!pl) return update({ ...data, parentLocationId: undefined });
     const { climate, flora, fauna, id } = pl;
     return update({ ...data, parentLocationId: id, climate, flora, fauna });
-  };
-
-  const getDescriptionIdea = async () => {
-    const dt = data.type || "place";
-    const ideaPrompt = buildDescriptionPrompt({ ...data, type: dt });
-    if (!ideaPrompt) return;
-    const idea = await getAndShowPrompt(ideaPrompt);
-    if (idea) onDescription(idea);
   };
 
   useEffect(() => {
@@ -104,12 +95,9 @@ const CreateLocationForm = (props: CreateLocationProps) => {
 
   return (
     <Form>
-      <Legend>
-        New <Accent>Location</Accent>
-      </Legend>
       <Hint>
         A <b>Location</b> is <b>a unique setting</b> in a <b>world</b>. It can
-        be anywhere that a story scene takes place.
+        be anywhere that a scene occurs.
       </Hint>
 
       <FormRow>
@@ -180,26 +168,31 @@ const CreateLocationForm = (props: CreateLocationProps) => {
       <hr />
 
       {/* Description */}
-      <Label direction="column">
-        <span className="label">
-          Short <Accent>description</Accent>
-        </span>
-        <Textarea
-          rows={300}
-          value={data?.description || ""}
-          onChange={(e) => onDescription(e.target.value)}
-        />
-      </Label>
+      <FormRow columns="3fr 1fr">
+        <Label direction="column">
+          <span className="label">
+            Short <Accent>description</Accent>
+          </span>
+          <Hint>Give yourself some inspiration!</Hint>
+          <Textarea
+            rows={300}
+            value={data?.description || ""}
+            onChange={(e) => onDescription(e.target.value)}
+          />
+        </Label>
 
-      <Hint>Give yourself some inspiration!</Hint>
+        <ImageUploader
+          type="Location"
+          src={data.image}
+          onImageFile={onImageFile}
+        />
+      </FormRow>
 
       {!data?.description && (
-        <ButtonWithIcon
-          type="button"
-          onClick={getDescriptionIdea}
-          icon="tips_and_updates"
-          size="lg"
-          text="Get description ideas"
+        <WritingPrompt
+          onPrompt={onDescription}
+          additionalData={{ ...data, type: data.type || "location" }}
+          buttonText="Get description ideas"
         />
       )}
 

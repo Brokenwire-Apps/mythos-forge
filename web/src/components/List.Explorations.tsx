@@ -4,24 +4,16 @@ import {
   Accent,
   Card,
   CardTitle,
-  Description,
   PageDescription
 } from "components/Common/Containers";
 import ListView from "components/Common/ListView";
 import ExplorationItem, {
   CreateExplorationItem
 } from "components/ExplorationItem";
-import { useGlobalModal } from "hooks/GlobalModal";
 import { APIData, Exploration } from "utils/types";
 import { useGlobalUser } from "hooks/GlobalUser";
-import {
-  MODAL,
-  clearGlobalModal,
-  setGlobalModal,
-  setGlobalExploration
-} from "state";
+import { clearGlobalModal } from "state";
 import { TallIcon } from "components/ComponentIcons";
-import { useGlobalWorld } from "hooks/GlobalWorld";
 
 const EmptyText = styled.p`
   font-style: oblique;
@@ -51,8 +43,6 @@ type ExplorationsListProps = {
 /** @component List of explorations */
 const ExplorationsList = (props: ExplorationsListProps) => {
   const { id: userId, authenticated } = useGlobalUser(["id", "authenticated"]);
-  const { focusedLocation } = useGlobalWorld(["focusedLocation"]);
-  const locationName = focusedLocation?.name || "Locations";
   const { className, explorations = [], showControls = false } = props;
   const controls = () =>
     authenticated && showControls && <CreateExplorationItem />;
@@ -64,7 +54,7 @@ const ExplorationsList = (props: ExplorationsListProps) => {
   return (
     <Card className={className}>
       <CardTitle>
-        Explore <Accent>{locationName}</Accent>
+        <Accent>Explorations</Accent>
       </CardTitle>
 
       <PageDescription className="flex">
@@ -76,10 +66,6 @@ const ExplorationsList = (props: ExplorationsListProps) => {
           </LegendItem>
         ))}
       </PageDescription>
-
-      <Description>
-        All <b>Explorations</b> created for this location
-      </Description>
 
       {/* Empty List message */}
       {!explorations.length && (

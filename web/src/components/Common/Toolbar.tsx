@@ -20,13 +20,13 @@ export const Toolbar = styled(GridContainer)`
   }
 `;
 export const ToolbarButton = styled(ButtonWithIcon).attrs((p) => ({
-  className: `toolbar-button flex--column ${p.className || ""}`.trim(),
+  className: `toolbar-button ${p.className || ""}`.trim(),
   type: "button"
 }))`
   padding: ${({ theme }) => `${theme.sizes.sm}`};
   .text {
     ${({ theme }) => theme.mixins.ellipsis};
-    font-size: 0.5rem;
+    font-size: 0.7rem;
     text-transform: uppercase;
   }
 `;

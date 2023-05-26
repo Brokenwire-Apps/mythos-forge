@@ -32,7 +32,7 @@ const LogoLink = styled(Link)`
 `;
 const Container = styled(GridContainer)`
   align-items: start;
-  background: ${({ theme }) => theme.colors.bgGradientDir('180deg')};
+  background: ${({ theme }) => theme.colors.accent};
   color: ${({ theme }) => theme.colors.primary};
   grid-template-columns: 100%;
   grid-template-rows: max-content auto;

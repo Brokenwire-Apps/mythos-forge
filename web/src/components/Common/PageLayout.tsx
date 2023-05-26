@@ -23,6 +23,7 @@ const Page = styled(GridContainer)`
   ${autoColumn}
   grid-row: 2;
   height: -webkit-fill-available;
+  padding: ${({ theme }) => `${theme.sizes.sm} ${theme.sizes.sm} 0`};
 
   .fill {
     min-height: calc(100vh - 100px);
@@ -34,10 +35,15 @@ const HeaderDesc = styled(PageDescription)`
   margin: 0;
   max-width: 70vw;
   width: 100%;
+
+  &,
+  * {
+    color: white !important;
+  }
 `;
 const PageHeader = styled.header`
   ${autoColumn}
-  background: ${({ theme }) => theme.colors.bgGradient};
+  background: ${({ theme }) => theme.colors.accent};
   color: #fff;
   padding: 0.5rem 0.5rem 0;
   position: sticky;

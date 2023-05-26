@@ -24,7 +24,7 @@ type LocationItemProps = {
 
 const LocationContainer = styled(ItemGridContainer)`
   .child-locations {
-    grid-column: 1 / -1;
+    grid-column: 1 / span 4;
     grid-row: 4 / 6;
   }
 `;

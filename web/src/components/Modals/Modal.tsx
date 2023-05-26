@@ -33,10 +33,10 @@ const Modal = (p: ModalProps) => {
   } = p;
   const rootClass = "modal-root--default";
   const contentEntryClass = "scale-in";
-  const modalControlCols = useMemo(
-    () => (confirmText && cancelText ? "repeat(2,1fr)" : "auto"),
-    [confirmText, cancelText]
-  );
+  const modalControlCols = useMemo(() => {
+    if (confirmText && cancelText) return "1fr auto 1fr";
+    return "auto";
+  }, [confirmText, cancelText]);
   const onBGClick: MouseEventHandler<HTMLDivElement> = (e) => {
     const $elem = e.target as HTMLDivElement;
     if ($elem.classList.contains(rootClass)) onClose();
@@ -68,7 +68,7 @@ const Modal = (p: ModalProps) => {
             dangerouslySetInnerHTML={{ __html: title }}
           />
         )}
-        <RoundButton variant="transparent" onClick={onClose}>
+        <RoundButton size="lg" variant="transparent" onClick={onClose}>
           <MatIcon icon="close" />
         </RoundButton>
       </ModalTitle>
@@ -84,6 +84,7 @@ const Modal = (p: ModalProps) => {
               {cancelText}
             </WideButton>
           )}
+          {confirmText && cancelText && <hr className="vertical" />}
           {confirmText && (
             <WideButton onClick={onConfirm}>{confirmText}</WideButton>
           )}

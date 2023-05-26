@@ -14,6 +14,7 @@ const requiredInputStyles = css`
   font-size: 1rem;
 `;
 const sharedInputStyles = css`
+  background-color: #2f3950;
   border-radius: ${({ theme }) => theme.presets.round.sm};
   border: 1px solid ${({ theme }) => theme.colors.semitransparent};
   font-size: 16px;
@@ -45,6 +46,12 @@ export const Fieldset = styled.fieldset`
   &:last-of-type {
     margin-bottom: 0;
   }
+
+  fieldset {
+    border-left: 1px dashed ${({ theme }) => theme.colors.accent};
+    border-right: 0;
+    padding-right: 0;
+  }
 `;
 export const Input = styled.input`
   ${sharedInputStyles};
@@ -58,6 +65,7 @@ export const Input = styled.input`
 export const Textarea = styled.textarea`
   ${sharedInputStyles};
   height: 120px;
+  width: inherit;
 `;
 type LabelProps = {
   direction?: "row" | "column";
@@ -71,9 +79,10 @@ export const Label = styled.label<LabelProps>`
   grid-template-columns: ${({ direction = "row", columns }) =>
     columns || (direction === "column" ? "auto" : "max-content auto")};
   grid-column-gap: ${({ gap = "0" }) => gap};
+  padding-bottom: ${({ theme }) => theme.sizes.sm};
 
   .label {
-    color: ${({ theme }) => theme.colors.secondary};
+    color: ${({ theme }) => theme.colors.primary};
     font-weight: bold;
     display: inline-block;
     padding-right: ${({ direction, theme }) =>
@@ -146,7 +155,7 @@ type SelectProps<T = any> = Omit<
 };
 const StyledSelect = styled.select<{ wide?: boolean }>`
   ${sharedInputStyles};
-  width: ${({ wide = false }) => (wide ? "100%" : "auto")};
+  width: ${({ wide = false }) => (wide ? "100%" : "inherit")};
 
   option {
     font-size: 16px;

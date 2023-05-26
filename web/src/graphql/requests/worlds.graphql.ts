@@ -22,23 +22,23 @@ import { APIData, Location, World } from "utils/types";
 export type CreateWorldData = {
   id?: number;
   authorId?: number;
-} & Pick<World, "public" | "name" | "parentWorldId" | "description" | "type">;
+} & Exclude<
+  World,
+  | "childWorldsCount"
+  | "Author"
+  | "Characters"
+  | "ChildWorlds"
+  | "Events"
+  | "Groups"
+  | "Locations"
+  | "Timelines"
+>;
 
 /** Data required to create a location */
 export type CreateLocationData = {
   id?: number;
   authorId?: number;
-} & Pick<
-  Location,
-  | "name"
-  | "description"
-  | "climate"
-  | "parentLocationId"
-  | "type"
-  | "flora"
-  | "fauna"
-  | "worldId"
->;
+} & Exclude<Location, "Author" | "Characters" | "Events" | "Groups" | "World">;
 
 // Fetch a single `World` by ID
 export async function getWorld(worldId: number) {
@@ -55,6 +55,7 @@ export async function upsertWorld(raw: Partial<CreateWorldData>) {
   const data = {
     id: raw.id,
     name: raw.name,
+    image: raw.image,
     description: raw.description,
     public: raw.public,
     type: raw.type,
@@ -192,6 +193,7 @@ export function pruneLocationForAPI(data: Partial<CreateLocationData>) {
     id: data.id,
     name: data.name,
     description: data.description,
+    image: data.image,
     climate: data.climate,
     parentLocationId: data.parentLocationId,
     type: data.type,

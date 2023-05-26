@@ -3,22 +3,24 @@ import { noOp } from "../utils";
 import { UserRole } from "../utils/types";
 import {
   Form,
+  FormRow,
   Hint,
   Input,
   Label,
   Legend,
-  Select,
   Textarea
 } from "components/Forms/Form";
 import { CreateCharacterData } from "graphql/requests/characters.graphql";
-import { useGlobalWorld } from "hooks/GlobalWorld";
 import { useGlobalUser } from "hooks/GlobalUser";
 import { GlobalCharacter, GlobalWorld } from "state";
 import SelectParentWorld from "./SelectParentWorld";
+import SelectParentLocation from "./SelectParentLocation";
+import ImageUploader from "./Forms/ImageUploader";
 
 export type CreateCharacterProps = {
   data?: Partial<CreateCharacterData>;
   onChange?: (data: Partial<CreateCharacterData>) => void;
+  onImageFile?: (file?: File | null) => void;
 };
 
 const initialFormData = () => {
@@ -30,6 +32,7 @@ const initialFormData = () => {
   if (focusedCharacter) {
     formData.id = focusedCharacter.id;
     formData.authorId = focusedCharacter.authorId;
+    formData.image = focusedCharacter.image;
     formData.description = focusedCharacter.description;
     formData.name = focusedCharacter.name;
     formData.locationId = focusedCharacter.locationId;
@@ -42,26 +45,23 @@ const initialFormData = () => {
 
 /** Create or edit a `Character` */
 const CreateCharacterForm = (props: CreateCharacterProps) => {
-  const { onChange = noOp } = props;
+  const { onChange = noOp, onImageFile = noOp } = props;
   const { id: userId } = useGlobalUser(["id"]);
-  const { worlds = [] } = useGlobalWorld(["worlds"]);
   const data = initialFormData();
   const { authorId, id: charId } = data;
   const [formData, setFormData] = useState<Partial<CreateCharacterData>>(data);
   const role = useMemo<UserRole>(() => {
     return !charId || (authorId && userId === authorId) ? "Author" : "Reader";
   }, [userId, data]);
-  const hasLocation = useMemo(
-    () => Boolean(data.id && (data.locationId || data.worldId)),
-    [data]
-  );
   const update = (updates: Partial<CreateCharacterData>) => {
     setFormData(updates);
     onChange(updates);
   };
   const onDescription = (d: string) => update({ ...formData, description: d });
-  const onOrigin = (worldId?: number | null) =>
+  const onWorldId = (worldId?: number | null) =>
     update({ ...formData, worldId: worldId || undefined });
+  const onLocationId = (locationId?: number | null) =>
+    update({ ...formData, locationId: locationId || undefined });
   const onName = (e: ChangeEvent<HTMLInputElement>) => {
     update({ ...formData, name: e.target.value });
   };
@@ -72,17 +72,11 @@ const CreateCharacterForm = (props: CreateCharacterProps) => {
 
   return (
     <Form>
-      <Legend>
-        {formData.id ? (
-          <>
-            Edit <span className="accent--text">{formData.name}</span>
-          </>
-        ) : (
-          <>
-            New <span className="accent--text">Character</span>
-          </>
-        )}
-      </Legend>
+      {formData.id && (
+        <Legend>
+          Edit <span className="accent--text">{formData.name}</span>
+        </Legend>
+      )}
       {role === "Reader" ? (
         <Hint>
           <b className="error--text">
@@ -111,7 +105,6 @@ const CreateCharacterForm = (props: CreateCharacterProps) => {
           onChange={onName}
         />
       </Label>
-      <Hint>Enter a name for your character</Hint>
 
       {/* Origin Universe/Realm */}
       <Label direction="column">
@@ -122,33 +115,44 @@ const CreateCharacterForm = (props: CreateCharacterProps) => {
           </span>{" "}
           from?
         </span>
-        <SelectParentWorld
-          onChange={onOrigin}
-          placeholder="Select a universe/realm:"
-          value={formData.worldId || ""}
-        />
-      </Label>
-
-      {hasLocation ? (
-        <Hint className="error--text">
-          This character is linked to the current world or location.
-        </Hint>
-      ) : (
         <Hint>
           Select the <b>Universe</b> or <b>Realm</b> of this character's origin.
         </Hint>
-      )}
+
+        <FormRow columns="repeat(2, 1fr)">
+          <SelectParentWorld
+            onChange={onWorldId}
+            placeholder="Select a universe/realm:"
+            value={formData.worldId || ""}
+          />
+          {formData.worldId && (
+            <SelectParentLocation
+              onChange={onLocationId}
+              worldId={formData.worldId}
+              value={formData.locationId || ""}
+            />
+          )}
+        </FormRow>
+      </Label>
 
       {/* Description */}
-      <Label direction="column">
-        <span className="label">Short Description</span>
-        <Textarea
-          disabled={role === "Reader"}
-          rows={300}
-          value={formData.description || ""}
-          onChange={(e) => onDescription(e.target.value)}
+      <FormRow columns="3fr 1fr">
+        <Label direction="column">
+          <span className="label">Description</span>
+          <Textarea
+            disabled={role === "Reader"}
+            rows={300}
+            value={formData.description || ""}
+            onChange={(e) => onDescription(e.target.value)}
+          />
+        </Label>
+        <ImageUploader
+          type="Character"
+          src={data.image}
+          onImageFile={onImageFile}
         />
-      </Label>
+      </FormRow>
+
       <Hint>Describe your character as a series of short writing-prompts.</Hint>
     </Form>
   );
