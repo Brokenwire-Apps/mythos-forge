@@ -30,7 +30,8 @@ import ImageLoader from "components/Common/ImageLoader";
 
 const LogoutButton = styled(ButtonWithIcon)`
   display: grid;
-  grid-template-columns: 24px auto;
+  grid-template-columns: auto auto;
+  /* grid-template-rows: auto; */
   margin: 1rem auto;
   max-width: 600px;
 `;

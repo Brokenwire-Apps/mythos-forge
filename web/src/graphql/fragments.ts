@@ -7,7 +7,7 @@ export const MFUserFragment = `
 
 /** graphql `Character` fragment */
 export const MFCharacterFragment = `
-    id, name, description, authorId, groupId, locationId, worldId, 
+    id, name, image, description, authorId, groupId, locationId, worldId, 
 `;
 
 /** graphql `Character Relationship` fragment */

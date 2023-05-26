@@ -104,7 +104,7 @@ const LitCategory = (props: LitCategoryProps) => {
               </span>
               <SelectParentLocation
                 worldId={value.worldId}
-                value={value.locationId}
+                value={value.locationId || ""}
                 onChange={changeLocation}
               />
             </Label>

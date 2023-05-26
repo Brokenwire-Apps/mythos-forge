@@ -1,15 +1,9 @@
 import { ChangeEvent, useEffect } from "react";
 import { noOp } from "../utils";
-import {
-  Form,
-  Hint,
-  Input,
-  Label,
-  Legend,
-  Select
-} from "components/Forms/Form";
+import { Form, Hint, Input, Label, Legend } from "components/Forms/Form";
 import { CreateTimelineData } from "graphql/requests/timelines.graphql";
 import { useGlobalWorld } from "hooks/GlobalWorld";
+import SelectParentWorld from "./SelectParentWorld";
 
 export type CreateTimelineProps = {
   data?: Partial<CreateTimelineData>;
@@ -19,12 +13,9 @@ export type CreateTimelineProps = {
 /** Create or edit a `Timeline` */
 const CreateTimelineForm = (props: CreateTimelineProps) => {
   const { data, onChange = noOp } = props;
-  const { focusedWorld, worlds = [] } = useGlobalWorld([
-    "focusedWorld",
-    "worlds"
-  ]);
-  const updateOrigin = (id: number) => {
-    const worldId = isNaN(id) ? focusedWorld?.id : id;
+  const { focusedWorld } = useGlobalWorld(["focusedWorld"]);
+  const updateOrigin = (id: number | null) => {
+    const worldId = id === null || isNaN(id) ? focusedWorld?.id : id;
     onChange({ ...data, worldId });
   };
   const updateName = (e: ChangeEvent<HTMLInputElement>) => {
@@ -64,13 +55,10 @@ const CreateTimelineForm = (props: CreateTimelineProps) => {
       {/* Origin Universe/Realm */}
       <Label direction="column">
         <span className="label required">Timeline occurs in:</span>
-        <Select
-          data={worlds}
-          value={data?.worldId || ""}
-          itemText={(w) => w.name}
-          itemValue={(w) => w.id}
+        <SelectParentWorld
           placeholder="Select Timeline Target:"
-          onChange={(id: string) => updateOrigin(parseInt(id))}
+          value={data?.worldId || ""}
+          onChange={updateOrigin}
         />
       </Label>
       <Hint>

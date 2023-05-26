@@ -15,13 +15,11 @@ import {
   addNotification,
   clearGlobalModal,
   updateAsError,
-  updateBooksState,
   updateNotification
 } from "state";
 import { ErrorMessage } from "components/Common/Containers";
 import { useGlobalLibrary } from "hooks/GlobalLibrary";
-import { useGlobalUser } from "hooks/GlobalUser";
-import { uploadFileToServer } from "api/loadUserData";
+import { uploadCoverImage } from "api/loadUserData";
 
 /** Modal props */
 type ManageBookModalProps = {
@@ -50,6 +48,7 @@ const initialFormData = (): Partial<UpsertBookData> => {
   if (active === MODAL.MANAGE_BOOK && focusedBook) {
     $form.title = focusedBook.title;
     $form.description = focusedBook.description;
+    $form.image = focusedBook.image;
     $form.genre = focusedBook.genre;
     $form.public = focusedBook.public;
     $form.id = focusedBook.id;
@@ -65,30 +64,11 @@ export default function ManageBookModal(props: ManageBookModalProps) {
   const { open, onClose = clearGlobalModal } = props;
   const [formData, setFormData] = useState(initialFormData());
   const { focusedBook: data } = useGlobalLibrary(["focusedBook"]);
-  const { id: userId } = useGlobalUser(["id"]);
   const [error, setError] = useState("");
   const [imgData, setImgData] = useState<File | undefined>(undefined);
   const err = (msg: string, noteId?: number) => {
     setError(msg);
     if (msg) updateAsError(msg, noteId);
-  };
-  const uploadCoverImage = async () => {
-    if (!imgData) return undefined;
-    if (!userId || userId === -1 || !imgData) return undefined;
-
-    const noteId = addNotification("Uploading image...", true);
-    const imageRes = await uploadFileToServer(imgData, "books");
-    if (typeof imageRes === "string") {
-      updateAsError(imageRes, noteId);
-      return undefined;
-    }
-
-    if (!imageRes.fileURL) {
-      updateAsError("Cover image upload failed", noteId);
-      return undefined;
-    }
-
-    return imageRes.fileURL;
   };
   const close = () => {
     GlobalLibrary.focusedBook(null);
@@ -106,7 +86,7 @@ export default function ManageBookModal(props: ManageBookModalProps) {
       formData.description = `An exciting new entry into the ${formData.genre} genre.`;
     err("");
     const d = { ...formData };
-    if (imgData) d.image = await uploadCoverImage();
+    if (imgData) d.image = await uploadCoverImage(imgData);
 
     const noteId = addNotification("Saving book...", true);
     const resp = await upsertBook(pruneBookForAPI(d));
@@ -135,7 +115,7 @@ export default function ManageBookModal(props: ManageBookModalProps) {
     <Modal
       open={open}
       onClose={close}
-      title={data?.id ? "Edit Book" : "Create Book"}
+      title={`${data?.id ? "Edit" : "Create"} <b class="accent--text">Book</b>`}
       cancelText="Cancel"
       confirmText={data?.id ? "Update" : "Create"}
       onConfirm={submit}

@@ -44,7 +44,7 @@ const ConfirmDeleteModal = (props: Props) => {
 
   return (
     <Modal
-      title={`Delete ${title}?`}
+      title={`Delete <b class="accent--text">${title}</b>?`}
       open={open}
       onClose={onClose}
       onConfirm={onDelete}

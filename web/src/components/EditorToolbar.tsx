@@ -12,7 +12,6 @@ import { UserRole } from "utils/types";
 import { noOp } from "utils";
 import { getAndShowPrompt } from "api/loadUserData";
 import { Toolbar, ToolbarButton } from "./Common/Toolbar";
-import { buildDescriptionPrompt } from "utils/prompt-builder";
 
 type SharedToolbarComponentProps = {
   saveOnBlur?: boolean;

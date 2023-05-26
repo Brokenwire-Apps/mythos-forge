@@ -138,7 +138,11 @@ export const ButtonWithIcon = (props: ButtonWithIconProps) => {
   return (
     <Button className={classN} {...buttonProps}>
       <MatIcon icon={icon} />
-      {text && <span className="text">{text}</span>}
+      {text && (
+        <b className="text" style={{ paddingLeft: "0.3rem" }}>
+          {text}
+        </b>
+      )}
     </Button>
   );
 };

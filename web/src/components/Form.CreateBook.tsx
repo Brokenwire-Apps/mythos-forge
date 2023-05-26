@@ -13,10 +13,8 @@ import {
 } from "components/Forms/Form";
 import { UpsertBookData } from "graphql/requests/books.graphql";
 import LitCategory from "./Form.LitCategory";
-import { buildDescriptionPrompt } from "utils/prompt-builder";
-import { getAndShowPrompt } from "api/loadUserData";
-import { ButtonWithIcon } from "./Forms/Button";
 import { WritingPrompt } from "./WritingPrompt";
+import ImageUploader from "./Forms/ImageUploader";
 
 export type CreateBookProps = {
   data?: Partial<UpsertBookData>;
@@ -36,56 +34,63 @@ const CreateBookForm = (props: CreateBookProps) => {
   const updateTitle = (e: ChangeEvent<HTMLInputElement>) => {
     onChange({ ...data, title: e.target.value });
   };
-  const updateImage = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const [file] = e.target.files || [];
-    if (file) onCoverImage(file);
-  };
 
   return (
     <Form>
-      <Legend>
-        {data?.id ? (
-          `Edit ${data.title}`
-        ) : (
-          <>
-            New <span className="accent--text">Book</span>
-          </>
-        )}
-      </Legend>
-      <Hint>
-        Enter top-level information about your <b>Book</b>, like whether it is
-        free or can be seen by other users.
-      </Hint>
+      {data?.id && (
+        <>
+          <Legend>
+            Edit <b className="accent--text">{data.title}</b>
+          </Legend>
+          <hr />
+        </>
+      )}
 
       {/* Cover Image + Name */}
-      <FormRow columns="repeat(2, 1fr)">
-        {/* Name */}
-        <Label direction="column">
-          <span className="label required">
-            Book <span className="accent--text">Title</span>
-          </span>
-          <Input
-            placeholder="Omarai: Rise of the Reborn"
-            type="text"
-            value={data?.title || ""}
-            onChange={updateTitle}
-          />
-        </Label>
+
+      {/* Name */}
+      <Label direction="column">
+        <span className="label required">
+          Book <span className="accent--text">Title</span>
+        </span>
+        <Hint>Enter your exciting (or working) title here.</Hint>
+        <Input
+          placeholder="Omarai: Rise of the Reborn"
+          type="text"
+          value={data?.title || ""}
+          onChange={updateTitle}
+        />
+      </Label>
+      <hr />
+
+      {/* Description */}
+      <FormRow columns="3fr 1fr">
+        <div>
+          <Label direction="column">
+            <span className="label required">Summary</span>
+            <Hint>
+              <b>This will become your publicly-visible summary</b>.
+            </Hint>
+            <Textarea
+              rows={300}
+              style={{ width: "100%" }}
+              value={data?.description || ""}
+              onChange={({ target }) => updateDescription(target.value)}
+            />
+          </Label>
+
+          {!data?.description && (
+            <WritingPrompt
+              onPrompt={updateDescription}
+              additionalData={{ ...data, type: "book" }}
+              buttonText="Get description ideas"
+            />
+          )}
+        </div>
 
         {/* Cover Image */}
-        <Label direction="column">
-          <span className="label">
-            Cover <span className="accent--text">Image</span>
-          </span>
-          <Input
-            type="file"
-            accept="image/*"
-            onChange={updateImage}
-            style={{ padding: "0 0.5rem" }}
-          />
-        </Label>
+        <ImageUploader src={data?.image} onImageFile={onCoverImage} />
       </FormRow>
-      <Hint>Enter your exciting (or working) title here.</Hint>
       <hr />
 
       {/* Genre */}
@@ -140,31 +145,6 @@ const CreateBookForm = (props: CreateBookProps) => {
           <Hint>Leave blank to keep the book free.</Hint>
         </Label>
       </FormRow>
-      <hr />
-
-      {/* Description */}
-      <Label direction="column">
-        <span className="label required">Summary</span>
-        <Textarea
-          rows={300}
-          style={{ width: "100%" }}
-          value={data?.description || ""}
-          onChange={({ target }) => updateDescription(target.value)}
-        />
-      </Label>
-      <Hint>
-        <b>When you publish your book,</b> this section will become the
-        publicly-visible summary. Until then, you can enter writing-prompts or
-        leave this blank.
-      </Hint>
-
-      {!data?.description && (
-        <WritingPrompt
-          onPrompt={updateDescription}
-          additionalData={{ ...data, type: "book" }}
-          buttonText="Get description ideas"
-        />
-      )}
     </Form>
   );
 };

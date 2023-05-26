@@ -38,6 +38,7 @@ export async function upsertCharacter(raw: Partial<CreateCharacterData>) {
     id: c.id || undefined,
     name: c.name || undefined,
     description: c.description || undefined,
+    image: c.image || undefined,
     locationId: c.locationId || undefined,
     groupId: c.groupId || undefined,
     worldId: c.worldId || undefined,

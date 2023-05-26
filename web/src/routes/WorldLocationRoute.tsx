@@ -2,10 +2,10 @@ import { useEffect, useMemo } from "react";
 import styled from "styled-components";
 import {
   Accent,
+  Blockquote,
   Card,
   CardTitle,
-  GridContainer,
-  PageDescription
+  GridContainer
 } from "components/Common/Containers";
 import { LinkWithIcon } from "components/Forms/Button";
 import { Paths, insertId } from "routes";
@@ -43,10 +43,7 @@ const GoToWorld = styled(LinkWithIcon)`
   margin-top: 0.5rem;
   width: 100%;
 `;
-const PlaceDescription = styled(PageDescription)`
-  margin-top: 1.5rem;
-`;
-const Sidebar = styled.div`
+const Sidebar = styled.aside`
   grid-row: 1 / span 2;
   grid-column: 2;
 `;
@@ -142,28 +139,9 @@ const WorldLocationRoute = () => {
             What's <Accent>here</Accent>?
           </CardTitle>
           <p>
-            Choose a <Accent as="b">Scenario</Accent> to explore this location
+            Choose an <Accent as="b">Exploration</Accent> to learn about this
+            location.
           </p>
-
-          <CardTitle>Notes</CardTitle>
-          <ol>
-            <li>
-              Requires new{" "}
-              <Accent>
-                <b>Content Viewer</b>
-              </Accent>
-            </li>
-            <li>
-              <Accent>Exploration</Accent> will be named after book
-            </li>
-            <li>
-              Content is default viewed scene-by-scene: enable{" "}
-              <Accent>add content-links</Accent> here
-            </li>
-            <li>
-              <b>Storyboard Component</b> preview chapter + scene outline
-            </li>
-          </ol>
         </Card>
 
         {/* Sidebar */}
@@ -179,7 +157,8 @@ const WorldLocationRoute = () => {
             <CardTitle>
               <span className="ellipsis">{focusedWorld.name}</span>
             </CardTitle>
-            <Description
+            <Blockquote
+              as="blockquote"
               dangerouslySetInnerHTML={{ __html: focusedWorld.description }}
             />
             <GoToWorld

@@ -47,10 +47,8 @@ export type SlotDataFormProps = {
 const Container = styled(FormRow)`
   .form--interactive-slot-data {
     .form--interactive-slot-data {
-      border-left: 1px dashed ${({ theme }) => theme.colors.accent};
       margin-bottom: 0.4rem;
       padding-bottom: 0.4rem;
-      padding-left: 0.4rem;
     }
 
     &.slide-out-up {
@@ -159,7 +157,7 @@ const CreateInteractiveSlotDataForm = (props: SlotDataFormProps) => {
       <Button
         disabled={!supported.includes(action)}
         variant={"transparent"}
-        className="error--text"
+        className="error"
         type="button"
         size="sm"
         onClick={onRemove}

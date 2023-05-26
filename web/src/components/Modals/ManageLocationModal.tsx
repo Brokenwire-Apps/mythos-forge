@@ -37,6 +37,7 @@ const DEFAULT_ENVIRONMENT: Partial<CreateLocationData> = {
 export default function ManageLocationModal(props: ManageLocationModalProps) {
   const { data, open, onClose = clearGlobalModal, worldId } = props;
   const [error, setError] = useState("");
+  const [imgData, setImgData] = useState<File | undefined | null>(undefined);
   const [formData, setFormData] =
     useState<Partial<CreateLocationData>>(DEFAULT_ENVIRONMENT);
   const onError = (err: string, noteId?: number) => {
@@ -79,12 +80,12 @@ export default function ManageLocationModal(props: ManageLocationModalProps) {
     <Modal
       open={open}
       onClose={onClose}
-      title={`${data?.id ? "Edit" : "Create"} Location`}
+      title={`${data?.id ? "Edit" : "Create"} <b class="accent--text">Location</b>`}
       cancelText="Cancel"
       confirmText={data?.id ? "Update" : "Create"}
       onConfirm={submit}
     >
-      {open &&  <CreateLocationForm onChange={setFormData} />}
+      {open &&  <CreateLocationForm onChange={setFormData} onImageFile={setImgData} />}
       {error && <ErrorMessage>{error}</ErrorMessage>}
     </Modal>
   );

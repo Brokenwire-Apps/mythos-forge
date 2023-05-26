@@ -48,7 +48,7 @@ export default function WorldActions() {
         >
           <MatIcon icon="settings" className="accent--text" />
         </RoundButton>
-        Manage&nbsp;<span className="accent--text">World</span>
+        Manage&nbsp;<span className="accent--text">{type}</span>
       </CardTitle>
 
       <GridContainer columns="1fr" style={{ marginBottom: "1.5rem" }}>

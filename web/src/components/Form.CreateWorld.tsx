@@ -15,14 +15,14 @@ import {
 } from "components/Forms/Form";
 import { CreateWorldData } from "graphql/requests/worlds.graphql";
 import { Accent } from "./Common/Containers";
-import { ButtonWithIcon } from "./Forms/Button";
-import { getAndShowPrompt } from "api/loadUserData";
-import { DescribableType, buildDescriptionPrompt } from "utils/prompt-builder";
 import SelectParentWorld from "./SelectParentWorld";
 import { GlobalModal, GlobalWorld, MODAL } from "state";
+import { WritingPrompt } from "./WritingPrompt";
+import ImageUploader from "./Forms/ImageUploader";
 
 export type CreateWorldProps = {
   onChange?: (data: Partial<CreateWorldData>) => void;
+  onImageFile?: (f?: File | null) => void;
 };
 
 // Whether we're creating a new world or editing an existing one
@@ -44,7 +44,7 @@ const validWorldTypes = (type?: WorldType) => {
 
 /** Create or edit a `World` */
 const CreateWorldForm = (props: CreateWorldProps) => {
-  const { onChange = noOp } = props;
+  const { onChange = noOp, onImageFile = noOp } = props;
   const { focusedWorld } = GlobalWorld.getState();
   const [data, setData] = useState<Partial<CreateWorldData>>(emptyForm());
   const hasParent = useMemo(() => {
@@ -61,13 +61,6 @@ const CreateWorldForm = (props: CreateWorldProps) => {
   const updateTitle = (name: string) => onUpdate({ ...data, name });
   const updateParent = (parentWorldId: number | null) =>
     onUpdate({ ...data, parentWorldId });
-  const getDescriptionIdea = async () => {
-    const dt = data.type || "place";
-    const ideaPrompt = buildDescriptionPrompt({ ...data, type: dt });
-    if (!ideaPrompt) return;
-    const idea = await getAndShowPrompt(ideaPrompt);
-    if (idea) updateDesc(idea);
-  };
 
   return (
     <Form>
@@ -116,12 +109,45 @@ const CreateWorldForm = (props: CreateWorldProps) => {
         </Label>
       </FormRow>
       <Hint>
-        Enter a name for your world. Select{" "}
-        <b className="accent--text">Realm</b> if you are creating a mystical or
-        transdimensional space.
+        Select <b className="accent--text">Realm</b> if you are creating a
+        mystical or transdimensional space.
       </Hint>
+      <hr />
 
-      <FormRow>
+      {/* Description */}
+      <FormRow columns="3fr 1fr">
+        <Label direction="column">
+          <span className="label required">Short Description</span>
+          <Hint>Describe your world as a series of short writing-prompts.</Hint>
+          <Textarea
+            rows={300}
+            value={data?.description || ""}
+            onChange={(e) => updateDesc(e.target.value)}
+          />
+        </Label>
+
+        <ImageUploader
+          type="World"
+          src={data.image}
+          onImageFile={onImageFile}
+        />
+      </FormRow>
+
+      {!data?.description ? (
+        <>
+          <WritingPrompt
+            onPrompt={updateDesc}
+            additionalData={{ ...data, type: data.type || "world" }}
+            buttonText="Get description ideas"
+          />
+
+          <hr />
+        </>
+      ) : (
+        <hr />
+      )}
+
+      <FormRow columns="repeat(2, 1fr)">
         {/* Public/Private */}
         <Label direction="column">
           <span className="label">
@@ -161,38 +187,18 @@ const CreateWorldForm = (props: CreateWorldProps) => {
           />
         </Label>
       </FormRow>
-      <Hint>
-        {hasParent && (
-          <span className="error--text">
-            This world has a <b>parent</b>!
-          </span>
-        )}
-        You can set the world <b className="accent--text">Public</b> if you
-        would like to share it with all users.{" "}
-      </Hint>
-      <hr />
-
-      {/* Description */}
-      <Label direction="column">
-        <span className="label required">Short Description</span>
-        <Textarea
-          rows={300}
-          value={data?.description || ""}
-          onChange={(e) => updateDesc(e.target.value)}
-        />
-      </Label>
-      <Hint>Describe your world as a series of short writing-prompts.</Hint>
-      <hr />
-
-      {!data?.description && (
-        <ButtonWithIcon
-          type="button"
-          onClick={getDescriptionIdea}
-          icon="tips_and_updates"
-          size="lg"
-          text="Get description ideas"
-        />
+      {data.public ? (
+        <Hint>
+          <b className="accent--text">Public:</b> Other users can add to the{" "}
+          {data.type}.
+        </Hint>
+      ) : (
+        <Hint>
+          <b className="accent--text">Private:</b> only you can see/edit the{" "}
+          {data.type}.
+        </Hint>
       )}
+      <hr />
     </Form>
   );
 };

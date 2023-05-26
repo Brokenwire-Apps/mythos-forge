@@ -29,7 +29,7 @@ BaseTexture.defaultOptions.resolution = 2;
 
 const Canvas = styled.div.attrs({ id: "builder-canvas" })`
   background: #000;
-  border: 1px solid ${({ theme }) => theme.colors.semitransparent};
+  /* border: 1px solid ${({ theme }) => theme.colors.semitransparent}; */
   display: grid;
   height: 80vmin;
   place-content: center;
@@ -85,8 +85,8 @@ export const PixiCanvas = (props: CanvasProps) => {
     const { width: cw, height: ch } = $parent.getBoundingClientRect();
     // -2 for border, -50 for toolbar
     setSize({
-      width: Math.min(1200, cw - 2),
-      height: Math.min(640, ch - 2)
+      width: Math.min(1200, cw),
+      height: Math.min(640, ch)
     });
   }, []);
 
@@ -143,7 +143,7 @@ export const PixiCanvas = (props: CanvasProps) => {
       ) : (
         sceneData && (
           <Suspense fallback={compFallback}>
-            <PixiCanvasDialog {...sceneData} />
+            <PixiCanvasDialog key={Date.now()} {...sceneData} />
           </Suspense>
         )
       )}

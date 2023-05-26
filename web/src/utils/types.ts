@@ -432,6 +432,7 @@ export type WorldEvent = {
 export type Location = {
   name: string;
   description: string;
+  image?: string;
   climate: Climate;
   fauna: Richness;
   flora: Richness;

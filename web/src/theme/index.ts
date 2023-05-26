@@ -28,7 +28,8 @@ const THEME: GlobalTheme = {
   @media (prefers-color-scheme: dark) {
     :root {
       color: #213547;
-      background: ${({ theme }) => theme.colors.bgGradientDir!("350deg")};
+      /* background: ${({ theme }) => theme.colors.bgGradientDir!("350deg")}; */
+      background: #3D5A78;
     }
 
     button {
@@ -134,6 +135,7 @@ const THEME: GlobalTheme = {
     blockquote {
       border-left: 0.25rem solid ${({ theme }) => theme.colors.accent};
       font-style: italic;
+      margin: 0;
       padding-left: ${({ theme }) => theme.sizes.sm};
       &::after,  
       &::before {
@@ -157,8 +159,9 @@ const THEME: GlobalTheme = {
       height: 0.025rem;
 
       &.vertical {
-        height: 16px;
-        width: 0.025rem;
+        background-color: white;
+        height: inherit;
+        width: 1px;
       }
     }
   }

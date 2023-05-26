@@ -6,6 +6,7 @@ export type ContentProps = { centered?: boolean };
 /** Shared width of content */
 const defaultContentBoundary = css`
   width: 100vw;
+  max-width: 680px;
   min-width: 300px;
 `;
 /** Shared width of content */
@@ -19,7 +20,7 @@ export const drawerContentBoundary = css`
   }
 `;
 const controlsContainer = css`
-  background-color: ${({ theme }) => theme.colors.bgColor};
+  background-color: ${({ theme }) => theme.colors.accent};
   bottom: -10px;
   border: 1px solid ${({ theme }) => theme.colors.semitransparent};
   margin-top: -1px;
@@ -39,9 +40,10 @@ const titleContainer = css`
   .title {
     align-self: end;
     flex-grow: 1;
+    font-size: 1.1rem;
     line-height: 2.6rem;
-    margin: 0.8rem 0;
-    padding-left: 0.4rem;
+    margin: 0;
+    padding-left: 0.6rem;
     text-align: left;
   }
 `;
@@ -114,13 +116,17 @@ export const ModalControls = styled(GridContainer).attrs({
 })`
   ${defaultContentBoundary}
   ${controlsContainer}
+  border-bottom-left-radius: ${({ theme }) => theme.presets.round.sm};
+  border-bottom-right-radius: ${({ theme }) => theme.presets.round.sm};
 `;
 export const ModalTitle = styled(GridContainer).attrs({
   id: "modal--title",
-  columns: "auto min-content"
+  columns: "auto 36px"
 })`
   ${defaultContentBoundary}
   ${titleContainer}
+  border-top-left-radius: ${({ theme }) => theme.presets.round.sm};
+  border-top-right-radius: ${({ theme }) => theme.presets.round.sm};
 `;
 export const ModalContents = styled(FlexColumn).attrs({
   id: "modal--contents",
@@ -128,6 +134,7 @@ export const ModalContents = styled(FlexColumn).attrs({
 })<ContentProps>`
   ${defaultContentBoundary}
   ${contentContainer}
-  height: 80vh;
+  min-height: 50vh;
+  max-height: 80vh;
   z-index: inherit;
 `;

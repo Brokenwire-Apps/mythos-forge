@@ -18,10 +18,10 @@ const DialogContainer = styled.div`
   border-radius: ${({ theme }) => theme.sizes.sm};
   bottom: 2rem;
   left: 50%;
-  margin-left: -400px;
+  margin-left: -200px;
   padding: ${({ theme }) => theme.sizes.sm};
-  width: 90%;
-  max-width: 800px;
+  width: 100%;
+  max-width: 400px;
 `;
 const DialogButton = styled(RoundButton)`
   ${dialogUI}

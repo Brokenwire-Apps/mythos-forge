@@ -2,8 +2,7 @@ import styled from "styled-components";
 import { AppRouteDef, Paths } from "routes/index";
 import { FlexColumn } from "components/Common/Containers";
 import { MatIcon } from "./Common/MatIcon";
-import { ButtonLink, RoundButton } from "components/Forms/Button";
-import ThemeSelector from "./ThemeSelector";
+import { RoundButton } from "components/Forms/Button";
 import AppAuth from "./AppAuth";
 import { Link, useLocation, useMatch } from "react-router-dom";
 import ModalDrawer from "./Modals/ModalDrawer";
@@ -28,14 +27,14 @@ const FloatingButtons = styled.div`
   align-items: center;
   display: grid;
   grid-column-gap: 0.4rem;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   position: fixed;
   right: 0.5rem;
   top: 0.5rem;
   z-index: 999;
 
   @media screen and (max-width: 768px) {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     position: relative;
     top: auto;
     right: auto;
@@ -74,7 +73,7 @@ const AppNav = () => {
           </RoundButton>
 
           {/* Light/Dark Theme */}
-          <ThemeSelector />
+          {/* <ThemeSelector /> */}
 
           {/* Login/Logout Link */}
           <AppAuth />

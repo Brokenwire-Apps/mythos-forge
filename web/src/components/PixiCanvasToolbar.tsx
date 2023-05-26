@@ -57,22 +57,22 @@ export function PixiCanvasToolbar(props: ToolbarProps) {
               [tag, "all"].includes(activeLayer) ? "layers" : "layers_clear"
             }
             variant="transparent"
-            className={tag}
+            className={`${tag} flex--column`}
             onClick={click}
           />
         ))
       ) : (
         <>
           <ToolbarButton
-            className={`${activeLayer} expand--vertical`}
-            text="Show All"
+            className={`${activeLayer} flex--column expand--vertical`}
+            text="All"
             icon="layers_clear"
             variant="transparent"
             onClick={() => setGlobalLayer("all")}
           />
           {activeSlotIndex >= 0 && (
             <ToolbarButton
-              className="accent--text expand--vertical"
+              className="accent--text flex--column expand--vertical"
               text="Config"
               icon="settings"
               variant="transparent"
@@ -82,7 +82,7 @@ export function PixiCanvasToolbar(props: ToolbarProps) {
           <ToolbarButton
             text="Add Slot"
             icon="wallpaper"
-            className="gold--text expand--vertical"
+            className="gold--text flex--column expand--vertical"
             variant="transparent"
             onClick={() => setGlobalModal(MODAL.CREATE_INTERACTIVE_SLOT)}
           />
@@ -92,7 +92,7 @@ export function PixiCanvasToolbar(props: ToolbarProps) {
         text="Help"
         icon="help"
         variant="transparent"
-        className="success--text expand--vertical"
+        className="success--text flex--column expand--vertical"
         onClick={() => setGlobalModal(MODAL.EXPLORATION_BUILDER_HELP)}
       />
     </FloatingToolbar>
