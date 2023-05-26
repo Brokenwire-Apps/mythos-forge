@@ -21,6 +21,12 @@ data "aws_acm_certificate" "amazon_issued" {
   most_recent = true
 }
 
+data "aws_acm_certificate" "api" {
+  domain      = "api.mythosforge.app"
+  types       = ["AMAZON_ISSUED"]
+  most_recent = true
+}
+
 data "aws_route53_zone" "zone" {
   name = "mythosforge.app"
 }

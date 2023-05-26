@@ -108,15 +108,17 @@ resource "aws_instance" "mf-api-instance" {
       "echo \"DB_URL=postgres://${var.db_username}:${var.db_password}@${aws_db_instance.mf_database.address}\" >> .env",
       "sudo npm install",
       "sudo npm run prisma-sync",
-      "sudo pm2 start /home/ubuntu/mythosforge/server.js --name mythosforge-api",
       "sudo iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 80 -j REDIRECT --to-port 4001",
       "sudo iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 443 -j REDIRECT --to-port 4001",
       "sudo ufw allow 4001",
       "sudo ufw allow 443",
       "sudo ufw allow ssh",
-      "sudo yes | sudo ufw enable"
+      "sudo yes | sudo ufw enable",
+      "sudo pm2 start /home/ubuntu/mythosforge/server.js --name mythosforge-api"
     ]
   }
+
+  
 
   tags = {
     Name = "mf-api-instance"
